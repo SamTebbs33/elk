@@ -1,0 +1,19 @@
+{
+  "name": "mlj",
+  "version": "1.0.0",
+  "description": "HTML markuo like JSON",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SamTebbs33/mlj.git"
+  },
+  "author": "SamTebbs33",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/SamTebbs33/mlj/issues"
+  },
+  "homepage": "https://github.com/SamTebbs33/mlj#readme"
+}
