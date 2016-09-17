@@ -1,7 +1,7 @@
 {
   "name": "mlj",
   "version": "1.0.0",
-  "description": "HTML markuo like JSON",
+  "description": "HTML markup like JSON",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
