@@ -20,7 +20,7 @@ function interpretEscapes(str) {
 var whitespace = P.regexp(/\s*/m)
 
 function token(p) {
-  return p.skip(whitespace);
+  return whitespace.then(p.skip(whitespace));
 }
 
 function optional(p) {
@@ -28,24 +28,31 @@ function optional(p) {
 }
 
 // Parsers
-var tag_identifier = token(P.regexp(/[a-zA-Z0-9]/))
-var identifier = P.regexp(/-?[_a-zA-Z]+[_a-zA-Z0-9-]*/)
-var clss = P.string(".").then(identifier)
-var id = P.string("#").then(identifier)
+var tag_identifier = token(P.regexp(/[a-zA-Z0-9]+/))
+var identifier = token(P.regexp(/-?[_a-zA-Z]+[_a-zA-Z0-9-]*/))
+var clss = token(P.string(".")).then(identifier)
+var id = token(P.string("#")).then(identifier)
 var colon = token(P.string(":"))
 var str = token(P.regexp(/"((?:\\.|.)*?)"/, 1)).map(interpretEscapes).desc('string');
-var attribute = P.seqMap(tag_identifier, colon, str, function(ident, c, s) { return {ident: ident, val: s} })
+var attribute = P.seqMap(tag_identifier, colon, str, function(name, c, s) {
+  return {name: name, val: s}
+})
 var bracketl = token(P.string("["))
 var bracketr = token(P.string("]"))
 var bracel = token(P.string("{"))
 var bracer = token(P.string("}"))
 var comma = token(P.string(","))
-var attributes = P.seqMap(bracketl, P.sepBy1(attribute, comma), bracketr, function(bracket, attrs, bracket2) { return attrs })
-var block = P.lazy(function() {
-  return P.oneOf(colon.then(statement), bracedBlock)
+var attributes = P.seqMap(bracketl, P.sepBy1(attribute, comma), bracketr, function(bracket, attrs, bracket2) {
+  return attrs
 })
-var tag = P.seq(tag_identifier, optional(clss), optional(id), optional(block))
-var statement = P.oneOf(tag, str)
-var statements = statement.atLeast(0)
-var bracedBlock = P.seqMap(bracel, statements, bracer, function(b1, stmts, b2) { return stmts })
-console.log(str.parse('"hi"'));
+var block = P.lazy(function() {
+  return P.alt(colon.then(statement), bracedBlock)
+})
+var tag = P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
+  return {name: name, clss: cls, id: id, attrs: attrs, block: block}
+})
+var statement = P.alt(tag, str)
+var statements = whitespace.then(statement.atLeast(0))
+var bracedBlock = P.seqMap(bracel, statements, bracer, function(b1, stmts, b2) {
+  return stmts
+})
