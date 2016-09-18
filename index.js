@@ -46,13 +46,93 @@ var attributes = P.seqMap(bracketl, P.sepBy1(attribute, comma), bracketr, functi
   return attrs
 })
 var block = P.lazy(function() {
-  return P.alt(colon.then(statement), bracedBlock)
+  return P.alt(colon.then(statement).map(function(x) { return [x] }), bracedBlock)
 })
 var tag = P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
   return {name: name, clss: cls, id: id, attrs: attrs, block: block}
 })
 var statement = P.alt(tag, str)
-var statements = whitespace.then(statement.atLeast(0))
+var statements = statement.atLeast(0)
 var bracedBlock = P.seqMap(bracel, statements, bracer, function(b1, stmts, b2) {
   return stmts
 })
+
+function makeStr(str, indent) {
+  var resultString = ""
+  for(var i = 0; i < indent; i++) resultString += "  "
+  return resultString + str;
+}
+
+function isString(v) {
+  return typeof v === "string"
+}
+
+function isObject(v) {
+  return typeof v === "object"
+}
+
+function genStatements(statements, indent) {
+  var stmtsStr = ""
+  for(var i in statements) stmtsStr += genStatement(statements[i], indent) + "\n"
+  return stmtsStr
+}
+
+function genStatement(stmt, indent) {
+  if(isString(stmt)) return genStr(stmt, indent)
+  else return genTag(stmt, indent)
+}
+
+function genStr(str, indent) {
+  return makeStr(str, indent)
+}
+
+function genTag(tag, indent) {
+  var headerStr = "<" + tag.name + genClass(tag.clss) + genID(tag.id) + genAttributes(tag.attrs) + ">"
+  var bodyStr = genBlock(tag.block, indent + 1)
+  var footerStr = "</" + tag.name + ">"
+  return makeStr(headerStr , indent) + "\n" + bodyStr + "\n" + makeStr(footerStr, indent)
+}
+
+function genBlock(block, indent) {
+  if(isString(block)) return genStr(block, indent)
+  else return genStatements(block, indent)
+}
+
+function genBracedBlock(block, indent) {
+  return genStatements(block, indent)
+}
+
+function genClass(clss, indent) {
+  return clss !== null ? " class=\"" + clss + "\"" : ""
+}
+
+function genID(id, indent) {
+  return id !== null ? " id=\"" + id + "\"" : ""
+}
+
+function genAttributes(attrs, indent) {
+  var attrsStr = ""
+  for(var i in attrs) {
+    var attr = attrs[i]
+    attrsStr += " " + genAttribute(attr, indent)
+  }
+  return attrsStr
+}
+
+function genAttribute(attr, indent) {
+  return attr.name + "=\"" + attr.val + "\""
+}
+
+var result = statements.parse(`html {
+  head: title: "Some site"
+  body {
+    div .centred: "I am centred"
+    p .centred #intro {
+      "I am a centred paragraph with an introduction"
+      a [href: "https://google.com"]: \img [src: "https://google.com/favicon.ico"]
+    }
+  }
+}`)
+var statements = result.value
+console.log(statements)
+console.log(genStatements(statements, 0))
