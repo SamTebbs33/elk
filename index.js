@@ -1,4 +1,5 @@
 var P = require("parsimmon")
+var minimist = require('minimist');
 
 function interpretEscapes(str) {
   var escapes = {
@@ -123,16 +124,13 @@ function genAttribute(attr, indent) {
   return attr.name + "=\"" + attr.val + "\""
 }
 
-var result = statements.parse(`html {
-  head: title: "Some site"
-  body {
-    div .centred: "I am centred"
-    p .centred #intro {
-      "I am a centred paragraph with an introduction"
-      a [href: "https://google.com"]: \img [src: "https://google.com/favicon.ico"]
-    }
-  }
-}`)
-var statements = result.value
-console.log(statements)
-console.log(genStatements(statements, 0))
+function compileFile(path) {
+  var content = ""
+  var result = statements.parse(content)
+  var statements = result.value
+  genStatements(statements, 0)
+}
+
+var args = minimist(process.argv.slice(2))
+if(args._.length === 0) console.log("Missing input file");
+else compileFile(args._[0])

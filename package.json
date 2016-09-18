@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/SamTebbs33/mlj/issues"
   },
-  "homepage": "https://github.com/SamTebbs33/mlj#readme"
+  "homepage": "https://github.com/SamTebbs33/mlj#readme",
+  "dependencies": {
+    "minimist": "^1.2.0"
+  }
 }
