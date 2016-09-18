@@ -1,5 +1,6 @@
 var P = require("parsimmon")
-var minimist = require('minimist');
+var minimist = require('minimist')
+var fs = require("fs")
 
 function interpretEscapes(str) {
   var escapes = {
@@ -74,7 +75,7 @@ function isObject(v) {
 
 function genStatements(statements, indent) {
   var stmtsStr = ""
-  for(var i in statements) stmtsStr += genStatement(statements[i], indent) + "\n"
+  for(var i in statements) stmtsStr += "\n" + genStatement(statements[i], indent)
   return stmtsStr
 }
 
@@ -91,7 +92,7 @@ function genTag(tag, indent) {
   var headerStr = "<" + tag.name + genClass(tag.clss) + genID(tag.id) + genAttributes(tag.attrs) + ">"
   var bodyStr = genBlock(tag.block, indent + 1)
   var footerStr = "</" + tag.name + ">"
-  return makeStr(headerStr , indent) + "\n" + bodyStr + "\n" + makeStr(footerStr, indent)
+  return makeStr(headerStr , indent) + bodyStr + "\n" + makeStr(footerStr, indent)
 }
 
 function genBlock(block, indent) {
@@ -124,13 +125,19 @@ function genAttribute(attr, indent) {
   return attr.name + "=\"" + attr.val + "\""
 }
 
-function compileFile(path) {
-  var content = ""
+function compileFile(path, outputPath) {
+  console.log("compileFile " + path + " -> " + outputPath);
+  var content = fs.readFileSync(path).toString()
   var result = statements.parse(content)
-  var statements = result.value
-  genStatements(statements, 0)
+  console.log(result);
+  var output = genStatements(result.value, 0)
+  fs.writeFileSync(outputPath, output)
 }
 
 var args = minimist(process.argv.slice(2))
 if(args._.length === 0) console.log("Missing input file");
-else compileFile(args._[0])
+else {
+  var path = args._[0]
+  var outputPath = args.o
+  compileFile(path, outputPath)
+}
