@@ -16,13 +16,21 @@ html {
 ```
 See more examples in the [examples](examples) directory.
 
+## Getting started
+**Note:** At the moment, I haven't packaged the program into a self-contained executable, this is coming!
+1. Clone the repo.
+2. Make some mlj files using the [format](#Markup_format) (check the [examples](examples) for reference and inspiration)
+3. Convert them to HTML (see the [usage](#Usage))
+4. Deploy the HTML files to a site
+
 ## Markup format
-An mlj document is made up of tags and strings. Tags are inserted as HTML tags and strings are placed as-is into the resulting HTML. In the below sections, a `?` character is used to show that something is optional.
+An mlj document is made up of tags and strings. Tags are inserted into the generated HTML as tags and strings are inserted as-is (with escape sequences converted).
 
 ### Strings
 A string is a sequence of characters enclosed in `"`.
 
 ### Tags
+A `?` character is used to show that something is optional.
 Tags come in the format `name class? id? attributes? block?`
 * `name`: Any valid HTML tag name
 * `class`: A `.` followed by a valid CSS class name
@@ -43,7 +51,7 @@ The output type (file/directory) should match the input type.
 
 ### Example Usage
 * Compile **foo.mlj** to **foo.html**: `node mlj.js foo.mlj`
-* Compile all mlj files in **bar**: `node mlj.js foo`
+* Compile all mlj files in **foo**: `node mlj.js foo`
 * Compile **foo.mlj** to **bar.html**: `node mlj.js foo.mlj -o bar.html`
 * Compile all mlj files in **foo** to **bar**: `node mlj.js foo -o bar`
 * Compile all mlj files in **foo** and its subdirectories to **bar**: `node mlj.js foo -o bar -r`
