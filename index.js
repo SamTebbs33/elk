@@ -30,15 +30,15 @@ function optional(p) {
 }
 
 // Parsers
-var tag_identifier = token(P.regexp(/[a-zA-Z0-9]+/))
-var identifier = token(P.regexp(/-?[_a-zA-Z]+[_a-zA-Z0-9-]*/))
-var clss = token(P.string(".")).then(identifier)
-var id = token(P.string("#")).then(identifier)
+var tag_identifier = token(P.regexp(/[a-zA-Z0-9]+/)).desc("tag identifier")
+var identifier = token(P.regexp(/-?[_a-zA-Z]+[_a-zA-Z0-9-]*/)).desc("identifier")
+var clss = token(P.string(".")).then(identifier).desc("class")
+var id = token(P.string("#")).then(identifier).desc("id")
 var colon = token(P.string(":"))
 var str = token(P.regexp(/"((?:\\.|.)*?)"/, 1)).map(interpretEscapes).desc('string');
 var attribute = P.seqMap(tag_identifier, colon, str, function(name, c, s) {
   return {name: name, val: s}
-})
+}).desc("attribute")
 var bracketl = token(P.string("["))
 var bracketr = token(P.string("]"))
 var bracel = token(P.string("{"))
@@ -46,18 +46,18 @@ var bracer = token(P.string("}"))
 var comma = token(P.string(","))
 var attributes = P.seqMap(bracketl, P.sepBy1(attribute, comma), bracketr, function(bracket, attrs, bracket2) {
   return attrs
-})
+}).desc("attributes")
 var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
-})
+}).desc("block")
 var tag = P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
   return {name: name, clss: cls, id: id, attrs: attrs, block: block}
-})
-var statement = P.alt(tag, str)
-var statements = statement.atLeast(0)
+}).desc("tag")
+var statement = P.alt(tag, str).desc("statement")
+var statements = statement.atLeast(0).desc("statements")
 var bracedBlock = P.seqMap(bracel, statements, bracer, function(b1, stmts, b2) {
   return stmts
-})
+}).desc("braced block")
 
 function makeStr(str, indent) {
   var resultString = ""
@@ -132,13 +132,20 @@ function genAttribute(attr, indent) {
   return attr.name + "=\"" + attr.val + "\""
 }
 
+function reportError(result) {
+  var line = result.index.line
+  var column = result.index.column
+  var expected = result.expected
+  console.log("Syntax error@" + line + ":" + column + ": expected " + expected.join(", "));
+}
+
 function compileFile(path, outputPath) {
   var content = fs.readFileSync(path).toString()
   var result = statements.parse(content)
   if(result.status) {
     var output = genStatements(result.value, 0)
     fs.writeFileSync(outputPath, output)
-  } else console.log("Syntax error: " + JSON.stringify(result));
+  } else reportError(result)
 }
 
 var args = minimist(process.argv.slice(2))
