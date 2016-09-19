@@ -7,5 +7,6 @@ html {
     li: a [href: "table.html"]: "Tables"
     li: a [href: "styled_table.html"]: "Styled tables"
     li: a [href: "title.html"]: "Page titles"
+    li: a [href: "scripts.html"]: "Scripts"
   }
 }

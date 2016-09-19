@@ -1,0 +1,4 @@
+html {
+  head: title: "MLJ script example"
+  body: script: "alert('hi')"
+}
