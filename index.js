@@ -48,7 +48,7 @@ var attributes = P.seqMap(bracketl, P.sepBy1(attribute, comma), bracketr, functi
   return attrs
 })
 var block = P.lazy(function() {
-  return P.alt(colon.then(statement).map(function(x) { return [x] }), bracedBlock)
+  return P.alt(colon.then(statement), bracedBlock)
 })
 var tag = P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
   return {name: name, clss: cls, id: id, attrs: attrs, block: block}
@@ -73,6 +73,10 @@ function isObject(v) {
   return typeof v === "object"
 }
 
+function isArray(v) {
+  return v.constructor == Array
+}
+
 function genStatements(statements, indent) {
   var stmtsStr = ""
   for(var i in statements) stmtsStr += "\n" + genStatement(statements[i], indent)
@@ -91,14 +95,16 @@ function genStr(str, indent) {
 function genTag(tag, indent) {
   var headerStr = "<" + tag.name + genClass(tag.clss) + genID(tag.id) + genAttributes(tag.attrs) + ">"
   var hasBlock = tag.block !== null
-  var bodyStr = genBlock(tag.block, indent + 1)
-  var footerStr = "</" + tag.name + ">"
-  return makeStr(headerStr , indent) + (hasBlock ? (bodyStr + "\n" + makeStr(footerStr, indent)) : "")
+  var blockIsStr = hasBlock && isString(tag.block)
+  var bodyStr = genBlock(tag.block, blockIsStr ? 0 : indent + 1)
+  var footerStr = makeStr("</" + tag.name + ">", blockIsStr ? 0 : indent)
+  return makeStr(headerStr , indent) + (hasBlock ? (bodyStr + (blockIsStr ? "" : "\n") + footerStr) : "")
 }
 
 function genBlock(block, indent) {
   if(isString(block)) return genStr(block, indent)
-  else return genStatements(block, indent)
+  else if(isArray(block)) return genStatements(block, indent)
+  else return genStatement(block, indent)
 }
 
 function genBracedBlock(block, indent) {

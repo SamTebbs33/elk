@@ -1,9 +1,11 @@
 html {
-  head: title: "Some site"
+  head {
+    title: "Some site"
+  }
   body {
-    p .centred #intro {
-      "I am a centred paragraph with an introduction"
-      a [href: "https://google.com"]: img [src: "https://google.com/favicon.ico"]
+    table [border: "5px"] {
+      tr { td: "hi" td: "hello" td: "greetings" }
+      tr { td: "Sam" td: "Charles" td: "Tebbs" }
     }
   }
 }
