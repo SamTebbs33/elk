@@ -90,9 +90,11 @@ function genStr(str, indent) {
 
 function genTag(tag, indent) {
   var headerStr = "<" + tag.name + genClass(tag.clss) + genID(tag.id) + genAttributes(tag.attrs) + ">"
+  var hasBlock = tag.block !== null
+  console.log(tag.name + ", " + hasBlock);
   var bodyStr = genBlock(tag.block, indent + 1)
   var footerStr = "</" + tag.name + ">"
-  return makeStr(headerStr , indent) + bodyStr + "\n" + makeStr(footerStr, indent)
+  return makeStr(headerStr , indent) + (hasBlock ? (bodyStr + "\n" + makeStr(footerStr, indent)) : "")
 }
 
 function genBlock(block, indent) {
