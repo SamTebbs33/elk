@@ -1,5 +1,5 @@
 html {
-  head: title: "MLJ div example"
+  head: title: "Elk div example"
   body {
     div {
       "I'm inside a div"

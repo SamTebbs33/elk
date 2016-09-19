@@ -1,4 +1,4 @@
 html {
-  head: title: "MLJ script example"
+  head: title: "Elk script example"
   body: script: "alert('hi')"
 }

@@ -140,7 +140,7 @@ function reportError(result) {
   console.log("Syntax error@" + line + ":" + column + ": expected " + expected.join(", "));
 }
 
-var fileExtension = ".mlj"
+var fileExtension = ".elk"
 
 function removeExtension(str) {
   return str.slice(0, -fileExtension.length)

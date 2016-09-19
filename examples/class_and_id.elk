@@ -1,5 +1,5 @@
 html {
-  head: title: "MLJ class and id example"
+  head: title: "Elk class and id example"
   body {
     p .someclass: "Paragraph with a class"
     p #someid: "Paragraph with an ID"

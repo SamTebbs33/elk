@@ -1,7 +1,7 @@
 html {
-  head: title: "MLJ styled table example"
+  head: title: "Elk table example"
   body {
-    table [border: "2px"] {
+    table {
       tr { th: "Rank" th: "Country" th: "Population" }
       tr { td: "1" td: "China" td: "1,367,485,388" }
       tr { td: "2" td: "India" td: "1,251,695,584" }

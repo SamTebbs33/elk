@@ -1,21 +1,21 @@
 {
-  "name": "mlj",
+  "name": "elk",
   "version": "1.0.0",
-  "description": "HTML markup like JSON",
-  "main": "mlj.js",
+  "description": "Concise markup that compiles to HTML",
+  "main": "elk.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SamTebbs33/mlj.git"
+    "url": "git+https://github.com/SamTebbs33/elk.git"
   },
   "author": "SamTebbs33",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/SamTebbs33/mlj/issues"
+    "url": "https://github.com/SamTebbs33/elk/issues"
   },
-  "homepage": "https://github.com/SamTebbs33/mlj#readme",
+  "homepage": "https://github.com/SamTebbs33/elk#readme",
   "dependencies": {
     "minimist": "^1.2.0",
     "parsimmon": "^0.9.2"
