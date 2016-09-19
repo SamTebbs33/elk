@@ -1,5 +1,5 @@
 # elk
-Write HTML in a markup language like JSON
+Write HTML in a more concise way
 
 ## Example
 ```
