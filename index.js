@@ -79,7 +79,7 @@ function isArray(v) {
 
 function genStatements(statements, indent) {
   var stmtsStr = ""
-  for(var i in statements) stmtsStr += "\n" + genStatement(statements[i], indent)
+  for(var i in statements) stmtsStr += (i > 0 ? "\n" : "") + genStatement(statements[i], indent)
   return stmtsStr
 }
 
@@ -95,10 +95,11 @@ function genStr(str, indent) {
 function genTag(tag, indent) {
   var headerStr = "<" + tag.name + genClass(tag.clss) + genID(tag.id) + genAttributes(tag.attrs) + ">"
   var hasBlock = tag.block !== null
-  var blockIsStr = hasBlock && isString(tag.block)
-  var bodyStr = genBlock(tag.block, blockIsStr ? 0 : indent + 1)
-  var footerStr = makeStr("</" + tag.name + ">", blockIsStr ? 0 : indent)
-  return makeStr(headerStr , indent) + (hasBlock ? (bodyStr + (blockIsStr ? "" : "\n") + footerStr) : "")
+  var blockIsSingle = hasBlock && (tag.block.length === 0 || isString(tag.block))
+  var bodyStr = genBlock(tag.block, blockIsSingle ? 0 : indent + 1)
+  var footerStr = makeStr("</" + tag.name + ">", blockIsSingle ? 0 : indent)
+  var bodySeparator = blockIsSingle ? "" : "\n"
+  return makeStr(headerStr , indent) + (hasBlock ? (bodySeparator + bodyStr + bodySeparator + footerStr) : "")
 }
 
 function genBlock(block, indent) {

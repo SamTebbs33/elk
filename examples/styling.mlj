@@ -1,4 +1,4 @@
 html {
-  head: style: "p { color: blue; }"
-  body: p: "A paragraph that should be blue"
+  head: style: ".blue { color: blue; }"
+  body: p.blue: "A blue paragraph"
 }
