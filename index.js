@@ -135,8 +135,10 @@ function genAttribute(attr, indent) {
 function compileFile(path, outputPath) {
   var content = fs.readFileSync(path).toString()
   var result = statements.parse(content)
-  var output = genStatements(result.value, 0)
-  fs.writeFileSync(outputPath, output)
+  if(result.status) {
+    var output = genStatements(result.value, 0)
+    fs.writeFileSync(outputPath, output)
+  } else console.log("Syntax error: " + JSON.stringify(result));
 }
 
 var args = minimist(process.argv.slice(2))
