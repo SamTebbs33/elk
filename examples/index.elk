@@ -1,5 +1,5 @@
 html {
-  head: title: "MLJ examples index"
+  head: title: "Elk examples index"
   body: ul {
     li: a [href: "div.html"]: "Div elements"
     li: a [href: "class_and_id.html"]: "Classes and IDs"

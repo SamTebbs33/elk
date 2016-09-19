@@ -1,0 +1,7 @@
+html {
+  head {
+    title: "Elk styling example"
+    style: ".blue { color: blue; }"
+  }
+  body: p.blue: "A blue paragraph"
+}
