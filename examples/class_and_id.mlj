@@ -3,6 +3,6 @@ html {
   body {
     p .someclass: "Paragraph with a class"
     p #someid: "Paragraph with an ID"
-    p .someclass #someid: "Paragprah with a class and an ID"
+    p .someclass #someid: "Paragraph with a class and an ID"
   }
 }
