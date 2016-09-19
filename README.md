@@ -14,17 +14,32 @@ html {
   }
 }
 ```
+See more examples in the [examples](examples) directory.
+
+## Markup format
+An mlj document is made up of tags and strings. Tags are inserted as HTML tags and strings are placed as-is into the resulting HTML. In the below sections, a `?` character is used to show that something is optional.
+
+### Strings
+A string is a sequence of characters enclosed in `"`.
+
+### Tags
+Tags come in the format `name class? id? attributes? block?`
+* `name`: Any valid HTML tag name
+* `class`: A `.` followed by a valid CSS class name
+* `id`: A `#` followed by a valid CSS id name
+* `attributes`: Comma-separated attributes enclosed in `[` and `]`
+  * `attribute`: An attribute name, followed by a `:` and a string value.
+* `block`: A `:` followed by a string or tag, or zero or more strings or tags enclosed in `{` and `}`
+
+Check the [examples](examples) directory for example usages of the format.
 
 ## Usage
 Compile a file or a directory with `node mlj.js [file/dir]` and add below flags
 
-```
--r: Recurse over subdirectories, valid only if a directory is passed as input
-
--o [output]: Specify a specific output destination.
+* `-r`: Recurse over subdirectories, valid only if a directory is passed as input
+* `-o [output]`: Specify an output destination.
 Default is the input but with ".html" extension.
 The output type (file/directory) should match the input type.
-```
 
 ### Example Usage
 * Compile **foo.mlj** to **foo.html**: `node mlj.js foo.mlj`
@@ -32,5 +47,3 @@ The output type (file/directory) should match the input type.
 * Compile **foo.mlj** to **bar.html**: `node mlj.js foo.mlj -o bar.html`
 * Compile all mlj files in **foo** to **bar**: `node mlj.js foo -o bar`
 * Compile all mlj files in **foo** and its subdirectories to **bar**: `node mlj.js foo -o bar -r`
-
-See more examples in the [examples](examples) directory.
