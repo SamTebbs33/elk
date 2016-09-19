@@ -18,6 +18,7 @@ See more examples in the [examples](examples) directory.
 
 ## Getting started
 **Note:** At the moment, I haven't packaged the program into a self-contained executable, this is coming!
+
 1. Clone the repo.
 2. Make some mlj files under the repo folder using the [format](#Markup_format) (check the [examples](examples) for reference and inspiration)
 3. Convert them to HTML (see the [usage](#Usage))
