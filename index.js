@@ -140,7 +140,18 @@ function reportError(result) {
   console.log("Syntax error@" + line + ":" + column + ": expected " + expected.join(", "));
 }
 
+var fileExtension = ".mlj"
+
+function removeExtension(str) {
+  return str.slice(0, -fileExtension.length)
+}
+
+function isDir(path) {
+  return fs.lstatSync(path).isDirectory()
+}
+
 function compileFile(path, outputPath) {
+  console.log("Compiling " + path + " to " + outputPath);
   var content = fs.readFileSync(path).toString()
   var result = statements.parse(content)
   if(result.status) {
@@ -149,10 +160,29 @@ function compileFile(path, outputPath) {
   } else reportError(result)
 }
 
+function compileDir(path, outputPath, recurse) {
+  var files = fs.readdirSync(path)
+  for(var i in files) {
+    var file = files[i]
+    if(recurse && isDir(path + "/" + file)) {
+      compileDir(path + "/" + file, outputPath + "/" + file, true)
+    } else if(file.endsWith(fileExtension)) {
+      var withoutExtension = removeExtension(file)
+      compileFile(path + "/" + file, outputPath + "/" + withoutExtension + ".html")
+    }
+  }
+}
+
 var args = minimist(process.argv.slice(2))
 if(args._.length === 0) console.log("Missing input file");
 else {
   var path = args._[0]
   var outputPath = args.o
-  compileFile(path, outputPath)
+  if(isDir(path)) {
+    if(!outputPath) outputPath = path
+    compileDir(path, outputPath, args.r)
+  } else {
+    if(!outputPath) outputPath = removeExtension(path) + ".html"
+    compileFile(path, outputPath)
+  }
 }
