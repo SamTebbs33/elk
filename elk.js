@@ -133,11 +133,33 @@ function genStatements(statements, indent) {
   return stmtsStr
 }
 
+function genTemplateVar(node, indent) {
+  var obj = templateData
+  var checked = []
+  for(var i in node) {
+    var varName = node[i]
+    checked.push(varName)
+    if(obj.hasOwnProperty(varName)) obj = obj[varName]
+    else throw "Undefined variable '" + checked.join(".") + "'"
+  }
+  return obj
+}
+
+function genTemplateExpr(expr, indent) {
+  var node = expr.node
+  switch (expr.type) {
+    case TEMPLATE_VAR: return genTemplateVar(node, indent)
+    case TEMPLATE_LOOP: return genTemplateLoop(node, indent)
+    case TEMPLATE_FUNC_CALL: return genTemplateFuncCall(node, indent)
+  }
+}
+
 function genStatement(stmt, indent) {
   var node = stmt.node
   switch (stmt.type) {
     case STRING: return genStr(node, indent)
     case TAG: return genTag(node, indent)
+    case TEMPLATE_EXPR: return genTemplateExpr(node, indent)
   }
 }
 
