@@ -19,8 +19,6 @@ function interpretEscapes(str) {
   });
 }
 
-var whitespace = P.regexp(/\s*/m)
-
 function token(p) {
   return whitespace.then(p.skip(whitespace));
 }
@@ -29,35 +27,73 @@ function optional(p) {
   return p.atMost(1).map(function(x) { if(x.length === 0) return null; else return x[0] })
 }
 
+function type(p, id) {
+  return p.desc(id).map(function (x) {
+    return {type: id, node: x}
+  })
+}
+
+var templateData = {}
+
+var ATTRIBUTES = "attributes",
+  BLOCK = "block",
+  TAG = "tag",
+  STATEMENT = "statement",
+  STATEMENTS = "statements",
+  BRACED_BLOCK = "braced block",
+  TAG_IDENTIFIER = "tag identifier",
+  STRING = "string",
+  IDENTIFIER = "identifier",
+  CLASS = "class",
+  ID = "id",
+  COLON = "colon",
+  ATTRIBUTE = "attribute",
+  BRACKETL = "left bracket",
+  BRACKETR = "right bracket",
+  BRACEL = "left brace",
+  BRACER = "right brace",
+  PARENL = "left parenthesis",
+  PARENR = "right parenthesis",
+  COMMA = "comma",
+  DOT = "dot",
+  DOLLAR_SIGN = "dollar sign",
+  FOR = "for",
+  IN = "in",
+
 // Parsers
-var tag_identifier = token(P.regexp(/[a-zA-Z0-9]+/)).desc("tag identifier")
-var identifier = token(P.regexp(/-?[_a-zA-Z]+[_a-zA-Z0-9-]*/)).desc("identifier")
-var clss = token(P.string(".")).then(identifier).desc("class")
-var id = token(P.string("#")).then(identifier).desc("id")
+var comment = P.regexp(/\s*(?:\/\/).*/)
+var whitespace = P.regexp(/\s*/m)
+var tag_identifier = token(P.regexp(/[a-zA-Z0-9]+/))
+var identifier = token(P.regexp(/-?[_a-zA-Z]+[_a-zA-Z0-9-]*/))
+var dot = token(P.string("."))
+var hash = token(P.string("#"))
+var clss = dot.then(identifier)
+var id = hash.then(identifier)
 var colon = token(P.string(":"))
-var str = token(P.regexp(/"((?:\\.|.)*?)"/, 1)).map(interpretEscapes).desc('string');
+var str = type(token(P.regexp(/"((?:\\.|.)*?)"/, 1)).map(interpretEscapes), STRING);
 var attribute = P.seqMap(tag_identifier, colon, str, function(name, c, s) {
   return {name: name, val: s}
-}).desc("attribute")
+})
 var bracketl = token(P.string("["))
 var bracketr = token(P.string("]"))
 var bracel = token(P.string("{"))
 var bracer = token(P.string("}"))
+var parenl = token(P.string("("))
+var parenr = token(P.string(")"))
 var comma = token(P.string(","))
-var attributes = P.seqMap(bracketl, P.sepBy1(attribute, comma), bracketr, function(bracket, attrs, bracket2) {
-  return attrs
-}).desc("attributes")
+var dollar_sign = token(P.string("$"))
+var keyw_for = token(P.string("for"))
+var keyw_in = token(P.string("in"))
+var attributes = bracketl.then(P.sepBy1(attribute, comma)).skip(bracketr)
 var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
-}).desc("block")
-var tag = P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
+})
+var tag = type(P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
   return {name: name, clss: cls, id: id, attrs: attrs, block: block}
-}).desc("tag")
-var statement = P.alt(tag, str).desc("statement")
-var statements = statement.atLeast(0).desc("statements")
-var bracedBlock = P.seqMap(bracel, statements, bracer, function(b1, stmts, b2) {
-  return stmts
-}).desc("braced block")
+}), TAG)
+var statement = type(P.alt(tag, str, dollar_sign.then(template_expr)), STATEMENT)
+var statements = type(statement.atLeast(0), STATEMENTS)
+var bracedBlock = bracel.then(statements).skip(bracer)
 
 function makeStr(str, indent) {
   var resultString = ""
@@ -79,13 +115,16 @@ function isArray(v) {
 
 function genStatements(statements, indent) {
   var stmtsStr = ""
-  for(var i in statements) stmtsStr += (i > 0 ? "\n" : "") + genStatement(statements[i], indent)
+  for(var i in statements) stmtsStr += (i > 0 ? "\n" : "") + genStatement(statements[i].node, indent)
   return stmtsStr
 }
 
 function genStatement(stmt, indent) {
-  if(isString(stmt)) return genStr(stmt, indent)
-  else return genTag(stmt, indent)
+  var node = stmt.node
+  switch (stmt.type) {
+    case STRING: return genStr(node, indent)
+    case TAG: return genTag(node, indent)
+  }
 }
 
 function genStr(str, indent) {
@@ -95,21 +134,20 @@ function genStr(str, indent) {
 function genTag(tag, indent) {
   var headerStr = "<" + tag.name + genClass(tag.clss) + genID(tag.id) + genAttributes(tag.attrs) + ">"
   var hasBlock = tag.block !== null
-  var blockIsSingle = hasBlock && (tag.block.length === 0 || isString(tag.block))
-  var bodyStr = genBlock(tag.block, blockIsSingle ? 0 : indent + 1)
+  var blockIsSingle = hasBlock && (tag.block.length === 0 || tag.block.type === STRING)
+  var bodyStr = hasBlock ? genBlock(tag.block, blockIsSingle ? 0 : indent + 1) : ""
   var footerStr = makeStr("</" + tag.name + ">", blockIsSingle ? 0 : indent)
   var bodySeparator = blockIsSingle ? "" : "\n"
   return makeStr(headerStr , indent) + (hasBlock ? (bodySeparator + bodyStr + bodySeparator + footerStr) : "")
 }
 
 function genBlock(block, indent) {
-  if(isString(block)) return genStr(block, indent)
-  else if(isArray(block)) return genStatements(block, indent)
-  else return genStatement(block, indent)
-}
-
-function genBracedBlock(block, indent) {
-  return genStatements(block, indent)
+  var node = block.node
+  switch (block.type) {
+    case STRING: return genStr(node, indent)
+    case STATEMENTS: return genStatements(node, indent)
+    case STATEMENT: return genStatement(node, indent)
+  }
 }
 
 function genClass(clss, indent) {
@@ -150,21 +188,42 @@ function isDir(path) {
   return fs.lstatSync(path).isDirectory()
 }
 
-function compileFile(path, outputPath) {
-  console.log("Compiling " + path + " to " + outputPath);
-  var content = fs.readFileSync(path).toString()
-  var result = statements.parse(content)
-  if(result.status) {
-    var output = genStatements(result.value, 0)
-    fs.writeFileSync(outputPath, output)
-  } else reportError(result)
+function makeResult(errored, errData, successData) {
+  if(!successData) successData = null
+  return { errored: errored, errData: errData, data: successData }
 }
 
-function compileDir(path, outputPath, recurse) {
+function parse(content) {
+  var result = statements.parse(content)
+  if(!result.status) return makeResult(true, { location: result.index, expected: result.expected })
+  return makeResult(false, null, result.value)
+}
+
+function convert(parseTree) {
+  try {
+    return genStatements(parseTree.node, 0)
+  } catch (err) {
+    return makeResult(true, err, null)
+  }
+}
+
+function compile(content, data) {
+  templateData = data
+  var result = parse(content)
+  if(result.errored) return result;
+  else return convert(result.data)
+}
+
+function compileFile(path, outputPath, data, config) {
+  var content = fs.readFileSync(path).toString()
+  return compile(content, data)
+}
+
+function compileDir(path, outputPath, data, config) {
   var files = fs.readdirSync(path)
   for(var i in files) {
     var file = files[i]
-    if(recurse && isDir(path + "/" + file)) {
+    if(config.recurse && isDir(path + "/" + file)) {
       compileDir(path + "/" + file, outputPath + "/" + file, true)
     } else if(file.endsWith(fileExtension)) {
       var withoutExtension = removeExtension(file)
@@ -173,16 +232,20 @@ function compileDir(path, outputPath, recurse) {
   }
 }
 
-var args = minimist(process.argv.slice(2))
-if(args._.length === 0) console.log("Missing input file");
-else {
-  var path = args._[0]
-  var outputPath = args.o
-  if(isDir(path)) {
-    if(!outputPath) outputPath = path
-    compileDir(path, outputPath, args.r)
-  } else {
-    if(!outputPath) outputPath = removeExtension(path) + ".html"
-    compileFile(path, outputPath)
+function compileFiles(files, outPath, data, config) {
+  if(!config) config = {
+    recurse: false
+  }
+  if(!data) data = {}
+  for(var i in files) {
+    var file = files[i]
+    var error = null
+    if(isDir(file)) error = compileDir(file, outPath, data, config)
+    else error = compileFile(file, outPath, data, config)
+    if(error) return error
   }
 }
+
+module.exports.compile = compile
+module.exports.parse = parse
+module.exports.convert = convert
