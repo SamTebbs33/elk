@@ -276,7 +276,7 @@ function parse(content) {
 
 function convert(parseTree) {
   try {
-    return genStatements(parseTree.node, 0)
+    return makeResult(false, null, genStatements(parseTree.node, 0))
   } catch (err) {
     return makeResult(true, err, null)
   }
@@ -291,7 +291,10 @@ function compile(content, data) {
 
 function compileFile(path, outputPath, data, config) {
   var content = fs.readFileSync(path).toString()
-  return compile(content, data)
+  var output = compile(content, data)
+  if(output.errored) return output
+  else fs.writeFileSync(outputPath, output.data)
+  return output
 }
 
 function compileDir(path, outputPath, data, config) {
