@@ -174,7 +174,7 @@ function genTemplateFuncCall(call, indent) {
   var funcName = call.name
   var func = templateFunctions[funcName]
   if(!func) throw "Undefined function '" + funcName + "'"
-  else return func(call.args)
+  else return func(indent, call.args)
 }
 
 function genTemplateExpr(expr, indent) {
@@ -324,19 +324,20 @@ function compileFiles(files, outPath, data, config) {
   }
 }
 
-addTemplateFunction("list", function(args) {
-  var str = "<ul>"
+addTemplateFunction("list", function(indent, args) {
+  var str = makeStr("<ul>", indent)
   var array = genStatement(args[0].node)
   var format = args[1].node
   for(var i in array) {
     var item = array[i]
     pushDataContext(item)
-    str += "\n<li>" + genStatement(format) + "</li>"
+    str += "\n" + makeStr("<li>" + genStatement(format) + "</li>", indent + 1)
     popDataContext()
   }
-  return str + "</ul>"
+  return str + "\n" + makeStr("</ul>", indent)
 })
 
 module.exports.compile = compile
+module.exports.compileFile = compileFile
 module.exports.parse = parse
 module.exports.convert = convert
