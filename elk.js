@@ -38,6 +38,9 @@ var templateData = {}
 var ATTRIBUTES = "attributes",
   BLOCK = "block",
   TAG = "tag",
+  TEMPLATE_VAR = "template variable",
+  TEMPLATE_FUNC_CALL = "template function call",
+  TEMPLATE_LOOP = "template loop",
   STATEMENT = "statement",
   STATEMENTS = "statements",
   BRACED_BLOCK = "braced block",
@@ -59,6 +62,8 @@ var ATTRIBUTES = "attributes",
   DOLLAR_SIGN = "dollar sign",
   FOR = "for",
   IN = "in",
+  TEMPLATE_EXPR = "template expression",
+  FUNC_CALL_ARGS = "function call args"
 
 // Parsers
 var comment = P.regexp(/\s*(?:\/\/).*/)
@@ -91,6 +96,15 @@ var block = P.lazy(function() {
 var tag = type(P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
   return {name: name, clss: cls, id: id, attrs: attrs, block: block}
 }), TAG)
+var template_expr = type(P.lazy(function () { return P.alt(template_loop, template_func_call, template_var) }), TEMPLATE_EXPR)
+var template_var = type(P.sepBy1(identifier, dot), TEMPLATE_VAR)
+var func_call_args = P.sepBy1(template_expr, comma)
+var template_func_call = type(P.seqMap(identifier, parenl, func_call_args, parenr, function(id, p1, args, p2) {
+  return {name: id, args: args}
+}), TEMPLATE_FUNC_CALL)
+var template_loop = type(keyw_for.then(P.seqMap(tag_identifier, keyw_in, template_expr, function (id, keyw, expr) {
+  return {name: id, expr: expr}
+})), TEMPLATE_LOOP)
 var statement = type(P.alt(tag, str, dollar_sign.then(template_expr)), STATEMENT)
 var statements = type(statement.atLeast(0), STATEMENTS)
 var bracedBlock = bracel.then(statements).skip(bracer)
