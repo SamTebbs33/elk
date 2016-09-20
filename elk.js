@@ -321,6 +321,19 @@ function compileFiles(files, outPath, data, config) {
   }
 }
 
+addTemplateFunction("list", function(args) {
+  var str = "<ul>"
+  var array = genStatement(args[0].node)
+  var format = args[1].node
+  for(var i in array) {
+    var item = array[i]
+    pushDataContext(item)
+    str += "\n<li>" + genStatement(format) + "</li>"
+    popDataContext()
+  }
+  return str + "</ul>"
+})
+
 module.exports.compile = compile
 module.exports.parse = parse
 module.exports.convert = convert
