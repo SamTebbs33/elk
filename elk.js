@@ -56,6 +56,18 @@ function peekDataContext() {
   return templateDataStack[templateDataStack.length - 1]
 }
 
+function getDataFromContext(varArray) {
+  var obj = peekDataContext()
+  var checked = []
+  for(var i in varArray) {
+    var varName = varArray[i]
+    checked.push(varName)
+    if(obj.hasOwnProperty(varName)) obj = obj[varName]
+    else throw "Undefined variable '" + checked.join(".") + "'"
+  }
+  return obj
+}
+
 var ATTRIBUTES = "attributes",
   BLOCK = "block",
   TAG = "tag",
@@ -155,15 +167,7 @@ function genStatements(statements, indent) {
 }
 
 function genTemplateVar(node, indent) {
-  var obj = templateData
-  var checked = []
-  for(var i in node) {
-    var varName = node[i]
-    checked.push(varName)
-    if(obj.hasOwnProperty(varName)) obj = obj[varName]
-    else throw "Undefined variable '" + checked.join(".") + "'"
-  }
-  return obj
+  return getDataFromContext(node)
 }
 
 function genTemplateFuncCall(call, indent) {
