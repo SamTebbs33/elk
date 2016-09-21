@@ -184,24 +184,45 @@ function genStatements(statements, indent) {
   return stmtsStr
 }
 
-function genTemplateVar(node, indent) {
+function evalTemplateVar(node, indent) {
   return getDataFromContext(node)
 }
 
-function genTemplateFuncCall(call, indent) {
+function evalTemplateFuncCall(call, indent) {
   var funcName = call.name
   var func = templateFunctions[funcName]
   if(!func) throw "Undefined function '" + funcName + "'"
   else return func(indent, call.args)
 }
 
-function genTemplateExpr(expr, indent) {
+function genTemplateLoop(loop, indent) {
+  var varName = loop.name
+  var array = evalTemplateExpr(loop.expr.node)
+  var block = loop.block
+  if(dataExistsInContext(varName)) throw "Variable '" + varName + "' is already defined"
+  else {
+    var resultArray = []
+    for(var i in array) {
+      var elem = array[i]
+      setDataInContext(varName, elem)
+      resultArray.push(genBlock(block))
+    }
+    removeDataFromContext(varName)
+    return resultArray.join("\n")
+  }
+}
+
+function evalTemplateExpr(expr, indent) {
   var node = expr.node
   switch (expr.type) {
-    case TEMPLATE_VAR: return genTemplateVar(node, indent)
+    case TEMPLATE_VAR: return evalTemplateVar(node, indent)
     case TEMPLATE_LOOP: return genTemplateLoop(node, indent)
-    case TEMPLATE_FUNC_CALL: return genTemplateFuncCall(node, indent)
+    case TEMPLATE_FUNC_CALL: return evalTemplateFuncCall(node, indent)
   }
+}
+
+function genTemplateExpr(expr, indent) {
+  return evalTemplateExpr(expr, indent).toString()
 }
 
 function genStatement(stmt, indent) {
