@@ -214,7 +214,7 @@ function genStatement(stmt, indent) {
 }
 
 function genStr(str, indent) {
-  str = str.replace(/.*?\$\(([a-z](?:[a-z]|[0-9])*)\)/g, function(match) {
+  str = str.replace(/.*?\$\(([a-z](?:\.|[a-z]|[0-9])*)\)/g, function(match) {
     var index = match.indexOf("$(")
     var prefix = match.substr(0, index)
     var varName = match.substring(index + 2, match.length - 1)
