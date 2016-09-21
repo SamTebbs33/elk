@@ -147,9 +147,9 @@ var block = P.lazy(function() {
 var tag = type(P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
   return {name: name, clss: cls, id: id, attrs: attrs, block: block}
 }), TAG)
-var template_expr = type(P.lazy(function () { return P.alt(template_loop, template_func_call, template_var) }), TEMPLATE_EXPR)
-var template_var = type(dollar_sign.then(P.sepBy1(identifier, dot)), TEMPLATE_VAR)
-var statement = type(P.alt(tag, str, dollar_sign.then(template_expr)), STATEMENT)
+var template_expr = dollar_sign.then(type(P.lazy(function () { return P.alt(template_loop, template_func_call, template_var) }), TEMPLATE_EXPR))
+var template_var = type(P.sepBy1(identifier, dot), TEMPLATE_VAR)
+var statement = type(P.alt(tag, str, template_expr), STATEMENT)
 var func_call_args = P.sepBy(statement, comma)
 var template_func_call = type(P.seqMap(identifier, parenl, func_call_args, parenr, function(id, p1, args, p2) {
   return {name: id, args: args}
