@@ -205,7 +205,7 @@ function genTemplateLoop(loop, indent) {
     for(var i in array) {
       var elem = array[i]
       setDataInContext(varName, elem)
-      resultArray.push(genBlock(block))
+      resultArray.push(genBlock(block, indent))
     }
     removeDataFromContext(varName)
     return resultArray.join("\n")
@@ -365,7 +365,7 @@ function compileFiles(files, outPath, data, config) {
 
 addTemplateFunction("list", function(indent, args) {
   var str = makeStr("<ul>", indent)
-  var array = genStatement(args[0].node)
+  var array = evalTemplateExpr(args[0].node.node)
   var format = args[1].node
   for(var i in array) {
     var item = array[i]
