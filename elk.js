@@ -68,6 +68,24 @@ function getDataFromContext(varArray) {
   return obj
 }
 
+function dataExistsInContext(varArray) {
+  var obj = peekDataContext()
+  for(var i in varArray) {
+    var varName = varArray[i]
+    if(obj.hasOwnProperty(varName)) obj = obj[varName]
+    else return false
+  }
+  return true
+}
+
+function setDataInContext(name, value) {
+  peekDataContext()[name] = value
+}
+
+function removeDataFromContext(name) {
+  delete peekDataContext()[name]
+}
+
 var ATTRIBUTES = "attributes",
   BLOCK = "block",
   TAG = "tag",
