@@ -372,11 +372,19 @@ addTemplateFunction("list", function(indent, args) {
   var format = args[1].node
   for(var i in array) {
     var item = array[i]
-    pushDataContext(item)
-    str += "\n" + makeStr("<li>" + genStatement(format) + "</li>", indent + 1)
+    pushDataContext({_item: item})
+    str += "\n" + makeStr("<li>" + genStatement(format, indent) + "</li>", indent + 1)
     popDataContext()
   }
   return str + "\n" + makeStr("</ul>", indent)
+})
+
+addTemplateFunction("pages", function(indent, args) {
+  var path = args.length > 0 ? genStatement(args[0].node, 0) : "."
+  var files = fs.readdirSync(path).filter(function(elem) {
+    return elem.endsWith(".html")
+  })
+  return files
 })
 
 module.exports.compile = compile
