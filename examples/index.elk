@@ -1,12 +1,4 @@
 html {
   head: title: "Elk examples index"
-  body: ul {
-    li: a [href: "div.html"]: "Div elements"
-    li: a [href: "class_and_id.html"]: "Classes and IDs"
-    li: a [href: "styling.html"]: "Styling"
-    li: a [href: "table.html"]: "Tables"
-    li: a [href: "styled_table.html"]: "Styled tables"
-    li: a [href: "title.html"]: "Page titles"
-    li: a [href: "scripts.html"]: "Scripts"
-  }
+  body: $list($pages("examples"), a [href: "examples/$(_item)"]: $_item)
 }
