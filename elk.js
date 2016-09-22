@@ -56,26 +56,29 @@ function peekDataContext() {
   return templateDataStack[templateDataStack.length - 1]
 }
 
-function getDataFromContext(varArray) {
-  var obj = peekDataContext()
-  var checked = []
-  for(var i in varArray) {
-    var varName = varArray[i]
-    checked.push(varName)
-    if(obj.hasOwnProperty(varName)) obj = obj[varName]
-    else throw "Undefined variable '" + checked.join(".") + "'"
+function getDataFromContext(varArray, throwException) {
+  if(throwException === undefined) throwException = true
+  var dataStack = templateDataStack.reverse()
+  for(var i in dataStack) {
+    var obj = dataStack[i]
+    console.log(JSON.stringify(obj));
+    var found = true
+    for(var i in varArray) {
+      var varName = varArray[i]
+      if(obj.hasOwnProperty(varName)) obj = obj[varName]
+      else {
+        found = false
+        break
+      }
+    }
+    if(found) return obj
   }
-  return obj
+  if(throwException) throw "Undefined variable '" + varArray.join(".") + "'"
+  return undefined
 }
 
 function dataExistsInContext(varArray) {
-  var obj = peekDataContext()
-  for(var i in varArray) {
-    var varName = varArray[i]
-    if(obj.hasOwnProperty(varName)) obj = obj[varName]
-    else return false
-  }
-  return true
+  return getDataFromContext(varArray, false) !== undefined
 }
 
 function setDataInContext(name, value) {
