@@ -130,9 +130,6 @@ var clss = dot.then(identifier)
 var id = hash.then(identifier)
 var colon = token(P.string(":"))
 var str = type(token(P.regexp(/"((?:\\.|.)*?)"/, 1)).map(interpretEscapes), STRING);
-var attribute = P.seqMap(tag_identifier, colon, str, function(name, c, s) {
-  return {name: name, val: s}
-})
 var bracketl = token(P.string("["))
 var bracketr = token(P.string("]"))
 var bracel = token(P.string("{"))
@@ -143,6 +140,10 @@ var comma = token(P.string(","))
 var dollar_sign = token(P.string("$"))
 var keyw_for = token(P.string("for"))
 var keyw_in = token(P.string("in"))
+var statement = type(P.lazy(function() { return P.alt(tag, str, template_expr) }), STATEMENT)
+var attribute = P.seqMap(tag_identifier, colon, statement, function(name, c, s) {
+  return {name: name, val: s}
+})
 var attributes = bracketl.then(P.sepBy1(attribute, comma)).skip(bracketr)
 var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
@@ -152,7 +153,6 @@ var tag = type(P.seqMap(tag_identifier, optional(clss), optional(id), optional(a
 }), TAG)
 var template_expr = dollar_sign.then(type(P.lazy(function () { return P.alt(template_loop, template_func_call, template_var) }), TEMPLATE_EXPR))
 var template_var = type(P.sepBy1(identifier, dot), TEMPLATE_VAR)
-var statement = type(P.alt(tag, str, template_expr), STATEMENT)
 var func_call_args = P.sepBy(statement, comma)
 var template_func_call = type(P.seqMap(identifier, parenl, func_call_args, parenr, function(id, p1, args, p2) {
   return {name: id, args: args}
@@ -238,7 +238,7 @@ function genStatement(stmt, indent) {
 }
 
 function genStr(str, indent) {
-  str = str.replace(/.*?\$\(([a-z](?:\.|[a-z]|[0-9])*)\)/g, function(match) {
+  str = str.replace(/.*?\$\(([a-z_](?:\.|[a-z_]|[0-9])*)\)/g, function(match) {
     var index = match.indexOf("$(")
     var prefix = match.substr(0, index)
     var varName = match.substring(index + 2, match.length - 1)
@@ -285,7 +285,7 @@ function genAttributes(attrs, indent) {
 }
 
 function genAttribute(attr, indent) {
-  return attr.name + "=\"" + attr.val + "\""
+  return attr.name + "=\"" + genStatement(attr.val.node) + "\""
 }
 
 function reportError(result) {
