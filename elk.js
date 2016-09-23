@@ -27,6 +27,10 @@ function optional(p) {
   return p.atMost(1).map(function(x) { if(x.length === 0) return null; else return x[0] })
 }
 
+function surround(surrounder, parser, surrounder2) {
+  return surrounder.then(parser.skip(surrounder2))
+}
+
 function type(p, id) {
   return p.desc(id).map(function (x) {
     return {type: id, node: x}
@@ -148,7 +152,7 @@ var statement = type(P.lazy(function() { return P.alt(tag, str, template_expr) }
 var attribute = P.seqMap(tag_identifier, colon, statement, function(name, c, s) {
   return {name: name, val: s}
 })
-var attributes = bracketl.then(P.sepBy1(attribute, comma)).skip(bracketr)
+var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr)
 var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
 })
@@ -165,7 +169,7 @@ var template_loop = type(keyw_for.then(P.seqMap(tag_identifier, keyw_in, templat
   return {name: id, expr: expr, block: block}
 })), TEMPLATE_LOOP)
 var statements = type(statement.atLeast(0), STATEMENTS)
-var bracedBlock = bracel.then(statements).skip(bracer)
+var bracedBlock = surround(bracel, statements, bracer)
 
 var indentString = "\t"
 
