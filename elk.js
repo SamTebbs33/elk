@@ -318,19 +318,21 @@ function parse(content) {
   return makeResult(false, null, result.value)
 }
 
-function convert(parseTree) {
+function convert(parseTree, indent) {
+  if(!indent) indent = 0
   try {
-    return makeResult(false, null, genStatements(parseTree.node, 0))
+    return makeResult(false, null, genStatements(parseTree.node, indent))
   } catch (err) {
     return makeResult(true, err, null)
   }
 }
 
-function compile(content, data) {
+function compile(content, data, indent) {
   pushDataContext(data)
   var result = parse(content)
-  if(result.errored) return result;
-  else return convert(result.data)
+  if(!result.errored) result = convert(result.data, indent);
+  popDataContext()
+  return result
 }
 
 function compileFile(path, outputPath, data, config) {
