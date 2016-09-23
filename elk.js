@@ -89,6 +89,10 @@ function removeDataFromContext(name) {
   delete peekDataContext()[name]
 }
 
+function getTemplateDataRoot() {
+  return templateDataStack[0]
+}
+
 var ATTRIBUTES = "attributes",
   BLOCK = "block",
   TAG = "tag",
