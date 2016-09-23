@@ -163,10 +163,12 @@ var template_loop = type(keyw_for.then(P.seqMap(tag_identifier, keyw_in, templat
 var statements = type(statement.atLeast(0), STATEMENTS)
 var bracedBlock = bracel.then(statements).skip(bracer)
 
+var indentString = "\t"
+
 function makeStr(str, indent) {
-  var resultString = ""
-  for(var i = 0; i < indent; i++) resultString += "  "
-  return resultString + str;
+  var resultString = str
+  for(var i = 0; i < indent; i++) str = indentString + str
+   return str;
 }
 
 function isString(v) {
