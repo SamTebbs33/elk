@@ -395,6 +395,13 @@ addTemplateFunction("pages", function(indent, args) {
   return files
 })
 
+addTemplateFunction("include", function(indent, args) {
+  var path = genStatement(args[0].node) + fileExtension
+  var content = fs.readFileSync(path).toString()
+  var compiled = compile(content, getTemplateDataRoot(), indent)
+  return compiled.data ? compiled.data : ""
+})
+
 module.exports.compile = compile
 module.exports.compileFile = compileFile
 module.exports.parse = parse
