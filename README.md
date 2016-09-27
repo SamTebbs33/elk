@@ -1,4 +1,4 @@
-# elk 🦌
+# elk
 Write HTML in a more concise way
 
 ## Example
