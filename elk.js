@@ -281,7 +281,7 @@ function genStr(str, indent) {
 function genTag(tag, indent) {
   var headerStr = "<" + tag.name + genClass(tag.clss) + genID(tag.id) + genAttributes(tag.attrs) + ">"
   var hasBlock = tag.block !== null
-  var blockIsSingle = hasBlock && (tag.block.length === 0 || tag.block.type === STRING)
+  var blockIsSingle = hasBlock && tag.block.type === STATEMENT && tag.block.node.type === STRING
   var bodyStr = hasBlock ? genBlock(tag.block, blockIsSingle ? 0 : indent + 1) : ""
   var footerStr = makeStr("</" + tag.name + ">", blockIsSingle ? 0 : indent)
   var bodySeparator = blockIsSingle ? "" : "\n"
