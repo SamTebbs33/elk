@@ -65,7 +65,6 @@ function getDataFromContext(varArray, throwException) {
   var dataStack = templateDataStack.reverse()
   for(var i in dataStack) {
     var obj = dataStack[i]
-    console.log(JSON.stringify(obj));
     var found = true
     for(var i in varArray) {
       var varName = varArray[i]
@@ -125,7 +124,9 @@ var ATTRIBUTES = "attributes",
   FOR = "for",
   IN = "in",
   TEMPLATE_EXPR = "template expression",
-  FUNC_CALL_ARGS = "function call args"
+  FUNC_CALL_ARGS = "function call args",
+  IF = "if",
+  ELSE = "else"
 
 // Parsers
 var comment = P.regexp(/\s*(?:\/\/).*/)
@@ -148,6 +149,8 @@ var comma = token(P.string(","))
 var dollar_sign = token(P.string("$"))
 var keyw_for = token(P.string("for"))
 var keyw_in = token(P.string("in"))
+var keyw_if = token(P.string("if"))
+var keyw_else = token(P.string("else"))
 var statement = type(P.lazy(function() { return P.alt(str, template_expr, tag) }), STATEMENT)
 var attribute = P.seqMap(tag_identifier, colon, statement, function(name, c, s) {
   return {name: name, val: s}
@@ -159,7 +162,7 @@ var block = P.lazy(function() {
 var tag = type(P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
   return {name: name, clss: cls, id: id, attrs: attrs, block: block}
 }), TAG)
-var template_expr = type(P.lazy(function () { return P.alt(template_loop, template_func_call, template_var) }), TEMPLATE_EXPR)
+var template_expr = type(P.lazy(function () { return P.alt(template_loop, template_if, template_func_call, template_var) }), TEMPLATE_EXPR)
 var template_var = type(dollar_sign.then(P.sepBy1(identifier, dot)), TEMPLATE_VAR)
 var func_call_args = P.sepBy(statement, comma)
 var template_func_call = type(P.seqMap(identifier, parenl, func_call_args, parenr, function(id, p1, args, p2) {
@@ -168,6 +171,10 @@ var template_func_call = type(P.seqMap(identifier, parenl, func_call_args, paren
 var template_loop = type(keyw_for.then(P.seqMap(tag_identifier, keyw_in, template_expr, block, function (id, keyw, expr, block) {
   return {name: id, expr: expr, block: block}
 })), TEMPLATE_LOOP)
+var template_else = type(dollar_sign.then(keyw_else.then(block)), ELSE)
+var template_if = type(P.lazy(function(){return keyw_if.then(P.seqMap(template_expr, block,  optional(P.alt(keyw_else.then(template_if), template_else)), function(expr, block, e) {
+  return {expr: expr, block: block, else_stmt: e}
+}))}), IF)
 var statements = type(statement.atLeast(0), STATEMENTS)
 var bracedBlock = surround(bracel, statements, bracer)
 
@@ -224,12 +231,28 @@ function genTemplateLoop(loop, indent) {
   }
 }
 
+function evalTemplateIf(node, indent) {
+  if(!node.expr) return genBlock(node, indent)
+  else {
+    var val = evalTemplateExpr(node.expr.node, indent)
+    if(val === true) return genBlock(node.block, indent)
+    else if(node.else_stmt) {
+      console.log("else: " + JSON.stringify(node.else_stmt));
+      return evalTemplateExpr(node.else_stmt, indent)
+    }
+    else return ""
+  }
+}
+
 function evalTemplateExpr(expr, indent) {
+  console.log("evaltemplate: " + JSON.stringify(expr));
   var node = expr.node
   switch (expr.type) {
     case TEMPLATE_VAR: return evalTemplateVar(node, indent)
     case TEMPLATE_LOOP: return genTemplateLoop(node, indent)
     case TEMPLATE_FUNC_CALL: return evalTemplateFuncCall(node, indent)
+    case ELSE: return evalTemplateIf(node, indent)
+    case IF: return evalTemplateIf(node, indent)
   }
 }
 
