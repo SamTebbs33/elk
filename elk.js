@@ -375,15 +375,17 @@ function compileFile(path, outputPath, data, config) {
 
 function compileDir(path, outputPath, data, config) {
   var files = fs.readdirSync(path)
+  var results = {}
   for(var i in files) {
     var file = files[i]
     if(config.recurse && isDir(path + "/" + file)) {
       compileDir(path + "/" + file, outputPath + "/" + file, true)
     } else if(file.endsWith(fileExtension)) {
       var withoutExtension = removeExtension(file)
-      compileFile(path + "/" + file, outputPath + "/" + withoutExtension + ".html")
+      results[file] = compileFile(path + "/" + file, outputPath + "/" + withoutExtension + ".html")
     }
   }
+  return results
 }
 
 function compileFiles(files, outPath, data, config) {
