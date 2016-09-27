@@ -379,10 +379,10 @@ function compileDir(path, outputPath, data, config) {
   for(var i in files) {
     var file = files[i]
     if(config.recurse && isDir(path + "/" + file)) {
-      compileDir(path + "/" + file, outputPath + "/" + file, true)
+      compileDir(path + "/" + file, outputPath + "/" + file, data, config)
     } else if(file.endsWith(fileExtension)) {
       var withoutExtension = removeExtension(file)
-      results[file] = compileFile(path + "/" + file, outputPath + "/" + withoutExtension + ".html")
+      results[file] = compileFile(path + "/" + file, outputPath + "/" + withoutExtension + ".html", data, config)
     }
   }
   return results
