@@ -410,10 +410,11 @@ addTemplateFunction("list", function(indent, args) {
   var str = makeStr("<ul>", indent)
   var array = evalTemplateExpr(args[0].node.node)
   var format = args[1].node
+  var formatIsSingle = format.type === STRING
   for(var i in array) {
     var item = array[i]
     pushDataContext({_item: item})
-    str += "\n" + makeStr("<li>" + genStatement(format, indent) + "</li>", indent + 1)
+    str += "\n" + makeStr("<li>", indent + 1) + genStatement(format, formatIsSingle ? 0 : indent + 1) + "</li>"
     popDataContext()
   }
   return str + "\n" + makeStr("</ul>", indent)
