@@ -281,7 +281,7 @@ function genStr(str, indent) {
 function genTag(tag, indent) {
   var headerStr = "<" + tag.name + genClass(tag.clss) + genID(tag.id) + genAttributes(tag.attrs) + ">"
   var hasBlock = tag.block !== null
-  var blockIsSingle = hasBlock && tag.block.type === STATEMENT && tag.block.node.type === STRING
+  var blockIsSingle = hasBlock && tag.block.type === STATEMENT && (tag.block.node.type === STRING || (tag.block.node.type === TEMPLATE_EXPR && tag.block.node.node.type === TEMPLATE_VAR))
   var bodyStr = hasBlock ? genBlock(tag.block, blockIsSingle ? 0 : indent + 1) : ""
   var footerStr = makeStr("</" + tag.name + ">", blockIsSingle ? 0 : indent)
   var bodySeparator = blockIsSingle ? "" : "\n"
@@ -410,11 +410,11 @@ addTemplateFunction("list", function(indent, args) {
   var str = makeStr("<ul>", indent)
   var array = evalTemplateExpr(args[0].node.node)
   var format = args[1].node
-  var formatIsSingle = format.type === STRING
+  var formatIsSingle = format.type === STRING || (format.type === TEMPLATE_EXPR && format.node.type === TEMPLATE_VAR)
   for(var i in array) {
     var item = array[i]
     pushDataContext({_item: item})
-    str += "\n" + makeStr("<li>", indent + 1) + genStatement(format, formatIsSingle ? 0 : indent + 1) + "</li>"
+    str += "\n" + makeStr("<li>", indent + 1) + (formatIsSingle ? "" : "\n") + genStatement(format, formatIsSingle ? 0 : indent + 2) + (formatIsSingle ? "" : "\n") + makeStr("</li>", formatIsSingle ? 0 : indent + 1)
     popDataContext()
   }
   return str + "\n" + makeStr("</ul>", indent)
