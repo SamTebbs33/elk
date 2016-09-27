@@ -76,7 +76,7 @@ function getDataFromContext(varArray, throwException) {
     }
     if(found) return obj
   }
-  if(throwException) throw "Undefined variable '" + varArray.join(".") + "'"
+  if(throwException) throw new ElkError("Undefined variable '" + varArray.join(".") + "'")
   return undefined
 }
 
@@ -210,7 +210,7 @@ function evalTemplateVar(node, indent) {
 function evalTemplateFuncCall(call, indent) {
   var funcName = call.name
   var func = templateFunctions[funcName]
-  if(!func) throw "Undefined function '" + funcName + "'"
+  if(!func) throw new ElkError("Undefined function '" + funcName + "'")
   else return func(indent, call.args)
 }
 
@@ -218,7 +218,7 @@ function genTemplateLoop(loop, indent) {
   var varName = loop.name
   var array = evalTemplateExpr(loop.expr.node)
   var block = loop.block
-  if(dataExistsInContext(varName)) throw "Variable '" + varName + "' is already defined"
+  if(dataExistsInContext(varName)) throw new ElkError("Variable '" + varName + "' is already defined")
   else {
     var resultArray = []
     for(var i in array) {
@@ -237,7 +237,6 @@ function evalTemplateIf(node, indent) {
     var val = evalTemplateExpr(node.expr.node, indent)
     if(val === true) return genBlock(node.block, indent)
     else if(node.else_stmt) {
-      console.log("else: " + JSON.stringify(node.else_stmt));
       return evalTemplateExpr(node.else_stmt, indent)
     }
     else return ""
@@ -245,7 +244,6 @@ function evalTemplateIf(node, indent) {
 }
 
 function evalTemplateExpr(expr, indent) {
-  console.log("evaltemplate: " + JSON.stringify(expr));
   var node = expr.node
   switch (expr.type) {
     case TEMPLATE_VAR: return evalTemplateVar(node, indent)
@@ -320,6 +318,11 @@ function genAttribute(attr, indent) {
   return attr.name + "=\"" + genStatement(attr.val.node) + "\""
 }
 
+function ElkError (msg) {
+  this.msg = msg
+}
+ElkError.prototype = new Error();
+
 function reportError(result) {
   var line = result.index.line
   var column = result.index.column
@@ -353,7 +356,8 @@ function convert(parseTree, indent) {
   try {
     return makeResult(false, null, genStatements(parseTree.node, indent))
   } catch (err) {
-    return makeResult(true, err, null)
+    if(err instanceof ElkError) return makeResult(true, err.msg, null)
+    else throw err
   }
 }
 
