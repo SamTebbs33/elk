@@ -1,8 +1,8 @@
 html {
   head: title: "Elk file inclusion example"
   body {
-    $include("examples/includes/header")
+    include("examples/includes/header")
     hr
-    $include("examples/includes/footer")
+    include("examples/includes/footer")
   }
 }

@@ -30,4 +30,4 @@ node_modules
 tmp
 
 # IDE
-.idea
+.idea/
