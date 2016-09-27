@@ -1,4 +1,4 @@
 html {
   head: title: "Elk examples index"
-  body: $list($pages("examples"), a [href: "examples/$(_item)"]: $_item)
+  body: list(pages("examples"), a [href: "examples/$(_item)"]: $_item)
 }

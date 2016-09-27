@@ -1,4 +1,4 @@
 html {
   head: title: "Elk function call templating"
-  body: list($people, "$(name), $(age)")
+  body: list($people, "$(_item.name), $(_item.age)")
 }
