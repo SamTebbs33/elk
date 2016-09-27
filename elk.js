@@ -407,6 +407,8 @@ addTemplateFunction("include", function(indent, args) {
 })
 
 module.exports.compile = compile
+module.exports.compileDir = compileDir
 module.exports.compileFile = compileFile
+module.exports.addTemplateFunction = addTemplateFunction
 module.exports.parse = parse
 module.exports.convert = convert
