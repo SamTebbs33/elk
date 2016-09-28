@@ -2,6 +2,11 @@ var P = require("parsimmon")
 var minimist = require('minimist')
 var fs = require("fs")
 
+function exp(val, name) {
+  if(!name) name = val.name
+  module.exports[name] = val
+}
+
 function interpretEscapes(str) {
   var escapes = {
     b: '\b',
@@ -43,22 +48,27 @@ var templateFunctions = {}
 function addTemplateFunction(name, func) {
   templateFunctions[name] = func
 }
+exp(addTemplateFunction)
 
 function getTemplateFunction(name) {
   return templateFunctions[name]
 }
+exp(getTemplateFunction)
 
 function pushDataContext(context) {
   templateDataStack.push(context)
 }
+exp(pushDataContext)
 
 function popDataContext() {
   return templateDataStack.pop()
 }
+exp(popDataContext)
 
 function peekDataContext() {
   return templateDataStack[templateDataStack.length - 1]
 }
+exp(peekDataContext)
 
 function getDataFromContext(varArray, throwException) {
   if(throwException === undefined) throwException = true
@@ -79,22 +89,27 @@ function getDataFromContext(varArray, throwException) {
   if(throwException) throw new ElkError("Undefined variable '" + varArray.join(".") + "'")
   return undefined
 }
+exp(getDataFromContext)
 
 function dataExistsInContext(varArray) {
   return getDataFromContext(varArray, false) !== undefined
 }
+exp(dataExistsInContext)
 
 function setDataInContext(name, value) {
   peekDataContext()[name] = value
 }
+exp(setDataInContext)
 
 function removeDataFromContext(name) {
   delete peekDataContext()[name]
 }
+exp(removeDataFromContext)
 
 function getTemplateDataRoot() {
   return templateDataStack[0]
 }
+exp(getTemplateDataRoot)
 
 var ATTRIBUTES = "attributes",
   BLOCK = "block",
@@ -127,7 +142,6 @@ var ATTRIBUTES = "attributes",
   FUNC_CALL_ARGS = "function call args",
   IF = "if",
   ELSE = "else"
-
 // Parsers
 var comment = P.regexp(/\s*(?:\/\/).*/)
 var whitespace = P.regexp(/\s*/m)
@@ -184,28 +198,34 @@ function makeStr(str, indent) {
   for(var i = 0; i < indent; i++) str = indentString + str
   return str;
 }
+exp(makeStr)
 
 function isString(v) {
   return typeof v === "string"
 }
+exp(isString)
 
 function isObject(v) {
   return typeof v === "object"
 }
+exp(isObject)
 
 function isArray(v) {
   return v.constructor == Array
 }
+exp(isArray)
 
 function genStatements(statements, indent) {
   var stmtsStr = ""
   for(var i in statements) stmtsStr += (i > 0 ? "\n" : "") + genStatement(statements[i].node, indent)
   return stmtsStr
 }
+exp(genStatements)
 
 function evalTemplateVar(node, indent) {
   return getDataFromContext(node)
 }
+exp(evalTemplateVar)
 
 function evalTemplateFuncCall(call, indent) {
   var funcName = call.name
@@ -213,6 +233,7 @@ function evalTemplateFuncCall(call, indent) {
   if(!func) throw new ElkError("Undefined function '" + funcName + "'")
   else return func(indent, call.args)
 }
+exp(evalTemplateFuncCall)
 
 function genTemplateLoop(loop, indent) {
   var varName = loop.name
@@ -230,6 +251,7 @@ function genTemplateLoop(loop, indent) {
     return resultArray.join("\n")
   }
 }
+exp(genTemplateLoop)
 
 function evalTemplateIf(node, indent) {
   if(!node.expr) return genBlock(node, indent)
@@ -242,6 +264,7 @@ function evalTemplateIf(node, indent) {
     else return ""
   }
 }
+exp(evalTemplateIf)
 
 function evalTemplateExpr(expr, indent) {
   var node = expr.node
@@ -253,10 +276,12 @@ function evalTemplateExpr(expr, indent) {
     case IF: return evalTemplateIf(node, indent)
   }
 }
+exp(evalTemplateExpr)
 
 function genTemplateExpr(expr, indent) {
   return evalTemplateExpr(expr, indent).toString()
 }
+exp(genTemplateExpr)
 
 function genStatement(stmt, indent) {
   var node = stmt.node
@@ -266,6 +291,7 @@ function genStatement(stmt, indent) {
     case TEMPLATE_EXPR: return genTemplateExpr(node, indent)
   }
 }
+exp(genStatement)
 
 function genStr(str, indent) {
   str = str.replace(/.*?\$\(([a-z_](?:\.|[a-z_]|[0-9])*)\)/g, function(match) {
@@ -277,6 +303,7 @@ function genStr(str, indent) {
   })
   return makeStr(str, indent)
 }
+exp(genStr)
 
 function genTag(tag, indent) {
   var headerStr = "<" + tag.name + genClass(tag.clss) + genID(tag.id) + genAttributes(tag.attrs) + ">"
@@ -287,6 +314,7 @@ function genTag(tag, indent) {
   var bodySeparator = blockIsSingle ? "" : "\n"
   return makeStr(headerStr , indent) + (hasBlock ? (bodySeparator + bodyStr + bodySeparator + footerStr) : "")
 }
+exp(genTag)
 
 function genBlock(block, indent) {
   var node = block.node
@@ -296,14 +324,17 @@ function genBlock(block, indent) {
     case STATEMENT: return genStatement(node, indent)
   }
 }
+exp(genBlock)
 
 function genClass(clss, indent) {
   return clss !== null ? " class=\"" + clss + "\"" : ""
 }
+exp(genClass)
 
 function genID(id, indent) {
   return id !== null ? " id=\"" + id + "\"" : ""
 }
+exp(genID)
 
 function genAttributes(attrs, indent) {
   var attrsStr = ""
@@ -313,15 +344,18 @@ function genAttributes(attrs, indent) {
   }
   return attrsStr
 }
+exp(genAttributes)
 
 function genAttribute(attr, indent) {
   return attr.name + "=\"" + genStatement(attr.val.node) + "\""
 }
+exp(genAttribute)
 
 function ElkError (msg) {
   this.msg = msg
 }
 ElkError.prototype = new Error();
+module.exports.ElkError = ElkError
 
 function reportError(result) {
   var line = result.index.line
@@ -329,27 +363,33 @@ function reportError(result) {
   var expected = result.expected
   console.log("Syntax error@" + line + ":" + column + ": expected " + expected.join(", "));
 }
+exp(reportError)
 
 var fileExtension = ".elk"
+exp(fileExtension, "fileExtension")
 
 function removeExtension(str) {
   return str.slice(0, -fileExtension.length)
 }
+exp(removeExtension)
 
 function isDir(path) {
   return fs.lstatSync(path).isDirectory()
 }
+exp(isDir)
 
 function makeResult(errored, errData, successData) {
   if(!successData) successData = null
   return { errored: errored, errData: errData, data: successData }
 }
+exp(makeResult)
 
 function parse(content) {
   var result = statements.parse(content)
   if(!result.status) return makeResult(true, { location: result.index, expected: result.expected })
   return makeResult(false, null, result.value)
 }
+exp(parse)
 
 function convert(parseTree, indent) {
   if(!indent) indent = 0
@@ -360,6 +400,7 @@ function convert(parseTree, indent) {
     else throw err
   }
 }
+exp(convert)
 
 function compile(content, data, indent) {
   pushDataContext(data)
@@ -368,6 +409,7 @@ function compile(content, data, indent) {
   popDataContext()
   return result
 }
+exp(compile)
 
 function compileFile(path, outputPath, data, config) {
   var content = fs.readFileSync(path).toString()
@@ -376,6 +418,7 @@ function compileFile(path, outputPath, data, config) {
   else fs.writeFileSync(outputPath, output.data)
   return output
 }
+exp(compileFile)
 
 function compileDir(path, outputPath, data, config) {
   var files = fs.readdirSync(path)
@@ -391,6 +434,7 @@ function compileDir(path, outputPath, data, config) {
   }
   return results
 }
+exp(compileDir)
 
 function compileFiles(files, outPath, data, config) {
   if(!config) config = {
