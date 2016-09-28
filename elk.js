@@ -406,38 +406,4 @@ function compileFiles(files, outPath, data, config) {
   }
 }
 
-addTemplateFunction("list", function(indent, args) {
-  var str = makeStr("<ul>", indent)
-  var array = evalTemplateExpr(args[0].node.node)
-  var format = args[1].node
-  var formatIsSingle = format.type === STRING || (format.type === TEMPLATE_EXPR && format.node.type === TEMPLATE_VAR)
-  for(var i in array) {
-    var item = array[i]
-    pushDataContext({_item: item})
-    str += "\n" + makeStr("<li>", indent + 1) + (formatIsSingle ? "" : "\n") + genStatement(format, formatIsSingle ? 0 : indent + 2) + (formatIsSingle ? "" : "\n") + makeStr("</li>", formatIsSingle ? 0 : indent + 1)
-    popDataContext()
-  }
-  return str + "\n" + makeStr("</ul>", indent)
-})
-
-addTemplateFunction("pages", function(indent, args) {
-  var path = args.length > 0 ? genStatement(args[0].node, 0) : "."
-  var files = fs.readdirSync(path).filter(function(elem) {
-    return elem.endsWith(".html")
-  })
-  return files
-})
-
-addTemplateFunction("include", function(indent, args) {
-  var path = genStatement(args[0].node) + fileExtension
-  var content = fs.readFileSync(path).toString()
-  var compiled = compile(content, getTemplateDataRoot(), indent)
-  return compiled.data ? compiled.data : ""
-})
-
-module.exports.compile = compile
-module.exports.compileDir = compileDir
-module.exports.compileFile = compileFile
-module.exports.addTemplateFunction = addTemplateFunction
-module.exports.parse = parse
-module.exports.convert = convert
+require("./functions.js")
