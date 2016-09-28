@@ -173,9 +173,9 @@ var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr)
 var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
 })
-var tag = type(P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
-  return {name: name, clss: cls, id: id, attrs: attrs, block: block}
-}), TAG)
+var tag = P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
+  return new nodes.Tag(name, clss, id, attrs, block)
+})
 var template_expr = type(P.lazy(function () { return P.alt(template_loop, template_if, template_func_call, template_var) }), TEMPLATE_EXPR)
 var template_var = type(dollar_sign.then(P.sepBy1(identifier, dot)), TEMPLATE_VAR)
 var func_call_args = P.sepBy(statement, comma)
