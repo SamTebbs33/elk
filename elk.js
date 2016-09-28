@@ -451,3 +451,4 @@ function compileFiles(files, outPath, data, config) {
 }
 
 require("./functions.js")
+var nodes = require("./nodes.js")
