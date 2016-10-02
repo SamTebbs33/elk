@@ -174,7 +174,7 @@ var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
 })
 var tag = P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
-  return new nodes.Tag(name, clss, id, attrs, block)
+  return new nodes.Tag(name, cls, id, attrs, block)
 })
 var template_expr = P.lazy(function () { return P.alt(template_loop, template_if, template_func_call, template_var) })
 var template_var = dollar_sign.then(P.sepBy1(identifier, dot)).map(a => new nodes.TemplateVar(a))

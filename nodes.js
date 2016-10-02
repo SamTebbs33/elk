@@ -8,6 +8,9 @@ function exp(val, name) {
 }
 
 class Node {
+  isSimple() {
+    return this instanceof StringNode || this instanceof TemplateVar
+  }
   gen(indent){ return "" }
 }
 
@@ -18,14 +21,14 @@ class StringNode extends Node {
   }
 
   gen(indent) {
-    str = str.replace(/.*?\$\(([a-z_](?:\.|[a-z_]|[0-9])*)\)/g, function(match) {
+    var s = this.str.replace(/.*?\$\(([a-z_](?:\.|[a-z_]|[0-9])*)\)/g, function(match) {
       var index = match.indexOf("$(")
       var prefix = match.substr(0, index)
       var varName = match.substring(index + 2, match.length - 1)
       var varArray = varName.split(".")
       return prefix + elk.getDataFromContext(varArray)
     })
-    return elk.makeStr(str, indent)
+    return elk.makeStr(s, indent)
   }
 
 }
@@ -34,12 +37,13 @@ exp(StringNode)
 class Attribute extends Node {
 
   constructor(attrName, val) {
+    super()
     this.attrName = attrName
     this.val = val
   }
 
   gen(indent) {
-    return attrName + "=\"" + val.gen(0) + "\""
+    return this.attrName + "=\"" + this.val.gen(0) + "\""
   }
 
 }
@@ -48,6 +52,7 @@ exp(Attribute)
 class Attributes extends Node {
 
   constructor(attrArray) {
+    super()
     this.attrs = attrArray
   }
 
@@ -66,7 +71,7 @@ exp(Attributes)
 class TemplateExpr extends Node {
 
   gen(indent) {
-    return eval(indent)
+    return this.eval(indent)
   }
 
   eval(indent) {
@@ -79,11 +84,12 @@ exp(TemplateExpr)
 class TemplateVar extends TemplateExpr {
 
   constructor(varArray) {
+    super()
     this.varArray = varArray
   }
 
   eval(indent) {
-    return elk.getDataFromContext(varArray)
+    return elk.getDataFromContext(this.varArray)
   }
 }
 exp(TemplateVar)
@@ -91,6 +97,7 @@ exp(TemplateVar)
 class TemplateFuncCall extends TemplateExpr {
 
   constructor(funcName, args) {
+    super()
     this.funcName = funcName
     this.args = args
   }
@@ -107,6 +114,7 @@ exp(TemplateFuncCall)
 class TemplateLoop extends TemplateExpr {
 
   constructor(varName, expr, block) {
+    super()
     this.varName = varName
     this.expr = expr
     this.block = block
@@ -134,6 +142,7 @@ exp(TemplateLoop)
 class TemplateIf extends TemplateExpr {
 
   constructor(expr, block, else_stmt) {
+    super()
     this.expr = expr
     this.block = block
     this.else_stmt = else_stmt
@@ -166,9 +175,12 @@ class Tag extends Node {
   }
 
   gen(indent) {
-    var headerStr = "<" + this.tag + this.clss.gen(0) + this.id.gen(0) + this.attrs.gen(0) + ">"
+    var classStr = this.clss ? " class='" + this.clss + "'" : ""
+    var idStr = this.id ? " id='" + this.id + "'" : ""
+    var attrsStr = this.attrs ? this.attrs.gen(0) : ""
+    var headerStr = "<" + this.tag + classStr + idStr + attrsStr + ">"
     var hasBlock = this.block !== null
-    var blockIsSingle = hasBlock && (tag.block instanceof StringNode || tag.block instanceof TemplateVar)
+    var blockIsSingle = hasBlock && (this.block instanceof StringNode || this.block instanceof TemplateVar)
     var bodyStr = hasBlock ? this.block.gen(blockIsSingle ? 0 : indent + 1) : ""
     var footerStr = elk.makeStr("</" + this.tag + ">", blockIsSingle ? 0 : indent)
     var bodySeparator = blockIsSingle ? "" : "\n"
@@ -181,6 +193,7 @@ exp(Tag)
 class Statements extends Node {
 
   constructor(stmtArr) {
+    super()
     this.stmtArr = stmtArr
   }
 
