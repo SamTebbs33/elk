@@ -63,6 +63,53 @@ class Attributes extends Node {
 }
 exp(Attributes)
 
+class TemplateExpr extends Node {
+
+  gen(indent) {
+    return eval(indent)
+  }
+
+  eval(indent) {
+    throw "Unimplemented"
+  }
+
+}
+exp(TemplateExpr)
+
+class TemplateVar extends TemplateExpr {
+
+  constructor(varArray) {
+    this.varArray = varArray
+  }
+
+  eval(indent) {
+    return elk.getDataFromContext(varArray)
+  }
+}
+exp(TemplateVar)
+
+class TemplateFuncCall extends TemplateExpr {
+
+  constructor(funcName, args) {
+    this.funcName = funcName
+    this.args = args
+  }
+
+  eval(indent) {
+    var func = elk.getTemplateFunction(this.funcName)
+    if(!func) throw new elk.ElkError("Undefined function '" + this.funcName + "'")
+    else return func(indent, this.args)
+  }
+
+}
+exp(TemplateFuncCall)
+
+class TemplateLoop extends TemplateExpr {
+
+  constructor()
+
+}
+
 class Tag extends Node {
 
   constructor(tag, clss, id, attrs, block) {
