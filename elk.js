@@ -185,10 +185,10 @@ var template_func_call = P.seqMap(identifier, parenl, func_call_args, parenr, fu
 var template_loop = keyw_for.then(P.seqMap(tag_identifier, keyw_in, template_expr, block, function (id, keyw, expr, block) {
   return new nodes.TemplateLoop(id, expr, block)
 }))
-var template_else = type(dollar_sign.then(keyw_else.then(block)), ELSE)
-var template_if = type(P.lazy(function(){return keyw_if.then(P.seqMap(template_expr, block,  optional(P.alt(keyw_else.then(template_if), template_else)), function(expr, block, e) {
-  return {expr: expr, block: block, else_stmt: e}
-}))}), IF)
+var template_else = dollar_sign.then(keyw_else.then(block)).map(b => new nodes.TemplateIf(null, b, null))
+var template_if = P.lazy(function(){return keyw_if.then(P.seqMap(template_expr, block,  optional(P.alt(keyw_else.then(template_if), template_else)), function(expr, block, e) {
+  return new nodes.TemplateIf(expr, block, e)
+}))})
 var statements = type(statement.atLeast(0), STATEMENTS)
 var bracedBlock = surround(bracel, statements, bracer)
 

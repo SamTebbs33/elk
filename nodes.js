@@ -129,6 +129,30 @@ class TemplateLoop extends TemplateExpr {
   }
 
 }
+exp(TemplateLoop)
+
+class TemplateIf extends TemplateExpr {
+
+  constructor(expr, block, else_stmt) {
+    this.expr = expr
+    this.block = block
+    this.else_stmt = else_stmt
+  }
+
+  eval(indent) {
+    if(!this.expr) return this.block.gen(indent)
+    else {
+      var val = this.expr.eval(indent)
+      if(val === true) return this.block.gen(indent)
+      else if(this.else_stmt) {
+        return this.else_stmt.eval(indent)
+      }
+      else return ""
+    }
+  }
+
+}
+exp(TemplateIf)
 
 class Tag extends Node {
 
