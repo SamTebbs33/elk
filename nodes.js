@@ -106,7 +106,27 @@ exp(TemplateFuncCall)
 
 class TemplateLoop extends TemplateExpr {
 
-  constructor()
+  constructor(varName, expr, block) {
+    this.varName = varName
+    this.expr = expr
+    this.block = block
+  }
+
+  gen(indent) {
+    var array = this.expr.eval(indent)
+    var block = this.block
+    if(elk.dataExistsInContext(this.varName)) throw new elk.ElkError("Variable '" + this.varName + "' is already defined")
+    else {
+      var resultArray = []
+      for(var i in array) {
+        var elem = array[i]
+        elk.setDataInContext(this.varName, elem)
+        resultArray.push(block.gen(indent))
+      }
+      elk.removeDataFromContext(this.varName)
+      return resultArray.join("\n")
+    }
+  }
 
 }
 
