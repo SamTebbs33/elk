@@ -111,37 +111,6 @@ function getTemplateDataRoot() {
 }
 exp(getTemplateDataRoot)
 
-var ATTRIBUTES = "attributes",
-  BLOCK = "block",
-  TAG = "tag",
-  TEMPLATE_VAR = "template variable",
-  TEMPLATE_FUNC_CALL = "template function call",
-  TEMPLATE_LOOP = "template loop",
-  STATEMENT = "statement",
-  STATEMENTS = "statements",
-  BRACED_BLOCK = "braced block",
-  TAG_IDENTIFIER = "tag identifier",
-  STRING = "string",
-  IDENTIFIER = "identifier",
-  CLASS = "class",
-  ID = "id",
-  COLON = "colon",
-  ATTRIBUTE = "attribute",
-  BRACKETL = "left bracket",
-  BRACKETR = "right bracket",
-  BRACEL = "left brace",
-  BRACER = "right brace",
-  PARENL = "left parenthesis",
-  PARENR = "right parenthesis",
-  COMMA = "comma",
-  DOT = "dot",
-  DOLLAR_SIGN = "dollar sign",
-  FOR = "for",
-  IN = "in",
-  TEMPLATE_EXPR = "template expression",
-  FUNC_CALL_ARGS = "function call args",
-  IF = "if",
-  ELSE = "else"
 // Parsers
 var comment = P.regexp(/\s*(?:\/\/).*/)
 var whitespace = P.regexp(/\s*/m)
@@ -152,7 +121,7 @@ var hash = token(P.string("#"))
 var clss = dot.then(identifier)
 var id = hash.then(identifier)
 var colon = token(P.string(":"))
-var str = type(token(P.regexp(/"((?:\\.|.)*?)"/, 1)).map(interpretEscapes), STRING);
+var str = token(P.regexp(/"((?:\\.|.)*?)"/, 1)).map(a => new nodes.StringNode(interpretEscapes(a)))
 var bracketl = token(P.string("["))
 var bracketr = token(P.string("]"))
 var bracel = token(P.string("{"))
@@ -165,31 +134,31 @@ var keyw_for = token(P.string("for"))
 var keyw_in = token(P.string("in"))
 var keyw_if = token(P.string("if"))
 var keyw_else = token(P.string("else"))
-var statement = type(P.lazy(function() { return P.alt(str, template_expr, tag) }), STATEMENT)
+var statement = P.lazy(function() { return P.alt(str, template_expr, tag) })
 var attribute = P.seqMap(tag_identifier, colon, statement, function(name, c, s) {
-  return {name: name, val: s}
+  return new nodes.Attribute(name, s)
 })
-var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr)
+var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr).map(a => new nodes.Attributes(a))
 var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
 })
-var tag = type(P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
-  return {name: name, clss: cls, id: id, attrs: attrs, block: block}
-}), TAG)
-var template_expr = type(P.lazy(function () { return P.alt(template_loop, template_if, template_func_call, template_var) }), TEMPLATE_EXPR)
-var template_var = type(dollar_sign.then(P.sepBy1(identifier, dot)), TEMPLATE_VAR)
+var tag = P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
+  return new nodes.Tag(name, cls, id, attrs, block)
+})
+var template_expr = P.lazy(function () { return P.alt(template_loop, template_if, template_func_call, template_var) })
+var template_var = dollar_sign.then(P.sepBy1(identifier, dot)).map(a => new nodes.TemplateVar(a))
 var func_call_args = P.sepBy(statement, comma)
-var template_func_call = type(P.seqMap(identifier, parenl, func_call_args, parenr, function(id, p1, args, p2) {
-  return {name: id, args: args}
-}), TEMPLATE_FUNC_CALL)
-var template_loop = type(keyw_for.then(P.seqMap(tag_identifier, keyw_in, template_expr, block, function (id, keyw, expr, block) {
-  return {name: id, expr: expr, block: block}
-})), TEMPLATE_LOOP)
-var template_else = type(dollar_sign.then(keyw_else.then(block)), ELSE)
-var template_if = type(P.lazy(function(){return keyw_if.then(P.seqMap(template_expr, block,  optional(P.alt(keyw_else.then(template_if), template_else)), function(expr, block, e) {
-  return {expr: expr, block: block, else_stmt: e}
-}))}), IF)
-var statements = type(statement.atLeast(0), STATEMENTS)
+var template_func_call = P.seqMap(identifier, parenl, func_call_args, parenr, function(id, p1, args, p2) {
+  return new nodes.TemplateFuncCall(id, args)
+})
+var template_loop = keyw_for.then(P.seqMap(tag_identifier, keyw_in, template_expr, block, function (id, keyw, expr, block) {
+  return new nodes.TemplateLoop(id, expr, block)
+}))
+var template_else = dollar_sign.then(keyw_else.then(block)).map(b => new nodes.TemplateIf(null, b, null))
+var template_if = P.lazy(function(){return keyw_if.then(P.seqMap(template_expr, block,  optional(P.alt(keyw_else.then(template_if), template_else)), function(expr, block, e) {
+  return new nodes.TemplateIf(expr, block, e)
+}))})
+var statements = statement.atLeast(0).map(a => new nodes.Statements(a))
 var bracedBlock = surround(bracel, statements, bracer)
 
 var indentString = "\t"
@@ -214,142 +183,6 @@ function isArray(v) {
   return v.constructor == Array
 }
 exp(isArray)
-
-function genStatements(statements, indent) {
-  var stmtsStr = ""
-  for(var i in statements) stmtsStr += (i > 0 ? "\n" : "") + genStatement(statements[i].node, indent)
-  return stmtsStr
-}
-exp(genStatements)
-
-function evalTemplateVar(node, indent) {
-  return getDataFromContext(node)
-}
-exp(evalTemplateVar)
-
-function evalTemplateFuncCall(call, indent) {
-  var funcName = call.name
-  var func = templateFunctions[funcName]
-  if(!func) throw new ElkError("Undefined function '" + funcName + "'")
-  else return func(indent, call.args)
-}
-exp(evalTemplateFuncCall)
-
-function genTemplateLoop(loop, indent) {
-  var varName = loop.name
-  var array = evalTemplateExpr(loop.expr.node)
-  var block = loop.block
-  if(dataExistsInContext(varName)) throw new ElkError("Variable '" + varName + "' is already defined")
-  else {
-    var resultArray = []
-    for(var i in array) {
-      var elem = array[i]
-      setDataInContext(varName, elem)
-      resultArray.push(genBlock(block, indent))
-    }
-    removeDataFromContext(varName)
-    return resultArray.join("\n")
-  }
-}
-exp(genTemplateLoop)
-
-function evalTemplateIf(node, indent) {
-  if(!node.expr) return genBlock(node, indent)
-  else {
-    var val = evalTemplateExpr(node.expr.node, indent)
-    if(val === true) return genBlock(node.block, indent)
-    else if(node.else_stmt) {
-      return evalTemplateExpr(node.else_stmt, indent)
-    }
-    else return ""
-  }
-}
-exp(evalTemplateIf)
-
-function evalTemplateExpr(expr, indent) {
-  var node = expr.node
-  switch (expr.type) {
-    case TEMPLATE_VAR: return evalTemplateVar(node, indent)
-    case TEMPLATE_LOOP: return genTemplateLoop(node, indent)
-    case TEMPLATE_FUNC_CALL: return evalTemplateFuncCall(node, indent)
-    case ELSE: return evalTemplateIf(node, indent)
-    case IF: return evalTemplateIf(node, indent)
-  }
-}
-exp(evalTemplateExpr)
-
-function genTemplateExpr(expr, indent) {
-  return evalTemplateExpr(expr, indent).toString()
-}
-exp(genTemplateExpr)
-
-function genStatement(stmt, indent) {
-  var node = stmt.node
-  switch (stmt.type) {
-    case STRING: return genStr(node, indent)
-    case TAG: return genTag(node, indent)
-    case TEMPLATE_EXPR: return genTemplateExpr(node, indent)
-  }
-}
-exp(genStatement)
-
-function genStr(str, indent) {
-  str = str.replace(/.*?\$\(([a-z_](?:\.|[a-z_]|[0-9])*)\)/g, function(match) {
-    var index = match.indexOf("$(")
-    var prefix = match.substr(0, index)
-    var varName = match.substring(index + 2, match.length - 1)
-    var varArray = varName.split(".")
-    return prefix + getDataFromContext(varArray)
-  })
-  return makeStr(str, indent)
-}
-exp(genStr)
-
-function genTag(tag, indent) {
-  var headerStr = "<" + tag.name + genClass(tag.clss) + genID(tag.id) + genAttributes(tag.attrs) + ">"
-  var hasBlock = tag.block !== null
-  var blockIsSingle = hasBlock && tag.block.type === STATEMENT && (tag.block.node.type === STRING || (tag.block.node.type === TEMPLATE_EXPR && tag.block.node.node.type === TEMPLATE_VAR))
-  var bodyStr = hasBlock ? genBlock(tag.block, blockIsSingle ? 0 : indent + 1) : ""
-  var footerStr = makeStr("</" + tag.name + ">", blockIsSingle ? 0 : indent)
-  var bodySeparator = blockIsSingle ? "" : "\n"
-  return makeStr(headerStr , indent) + (hasBlock ? (bodySeparator + bodyStr + bodySeparator + footerStr) : "")
-}
-exp(genTag)
-
-function genBlock(block, indent) {
-  var node = block.node
-  switch (block.type) {
-    case STRING: return genStr(node, indent)
-    case STATEMENTS: return genStatements(node, indent)
-    case STATEMENT: return genStatement(node, indent)
-  }
-}
-exp(genBlock)
-
-function genClass(clss, indent) {
-  return clss !== null ? " class=\"" + clss + "\"" : ""
-}
-exp(genClass)
-
-function genID(id, indent) {
-  return id !== null ? " id=\"" + id + "\"" : ""
-}
-exp(genID)
-
-function genAttributes(attrs, indent) {
-  var attrsStr = ""
-  for(var i in attrs) {
-    var attr = attrs[i]
-    attrsStr += " " + genAttribute(attr, indent)
-  }
-  return attrsStr
-}
-exp(genAttributes)
-
-function genAttribute(attr, indent) {
-  return attr.name + "=\"" + genStatement(attr.val.node) + "\""
-}
-exp(genAttribute)
 
 function ElkError (msg) {
   this.msg = msg
@@ -394,7 +227,7 @@ exp(parse)
 function convert(parseTree, indent) {
   if(!indent) indent = 0
   try {
-    return makeResult(false, null, genStatements(parseTree.node, indent))
+    return makeResult(false, null, parseTree.gen(indent))
   } catch (err) {
     if(err instanceof ElkError) return makeResult(true, err.msg, null)
     else throw err
@@ -451,3 +284,4 @@ function compileFiles(files, outPath, data, config) {
 }
 
 require("./functions.js")
+var nodes = require("./nodes.js")
