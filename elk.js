@@ -111,37 +111,6 @@ function getTemplateDataRoot() {
 }
 exp(getTemplateDataRoot)
 
-var ATTRIBUTES = "attributes",
-  BLOCK = "block",
-  TAG = "tag",
-  TEMPLATE_VAR = "template variable",
-  TEMPLATE_FUNC_CALL = "template function call",
-  TEMPLATE_LOOP = "template loop",
-  STATEMENT = "statement",
-  STATEMENTS = "statements",
-  BRACED_BLOCK = "braced block",
-  TAG_IDENTIFIER = "tag identifier",
-  STRING = "string",
-  IDENTIFIER = "identifier",
-  CLASS = "class",
-  ID = "id",
-  COLON = "colon",
-  ATTRIBUTE = "attribute",
-  BRACKETL = "left bracket",
-  BRACKETR = "right bracket",
-  BRACEL = "left brace",
-  BRACER = "right brace",
-  PARENL = "left parenthesis",
-  PARENR = "right parenthesis",
-  COMMA = "comma",
-  DOT = "dot",
-  DOLLAR_SIGN = "dollar sign",
-  FOR = "for",
-  IN = "in",
-  TEMPLATE_EXPR = "template expression",
-  FUNC_CALL_ARGS = "function call args",
-  IF = "if",
-  ELSE = "else"
 // Parsers
 var comment = P.regexp(/\s*(?:\/\/).*/)
 var whitespace = P.regexp(/\s*/m)
