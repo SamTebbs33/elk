@@ -236,6 +236,7 @@ function convert(parseTree, indent) {
 exp(convert)
 
 function compile(content, data, indent) {
+  if(!data) data = {}
   pushDataContext(data)
   var result = parse(content)
   if(!result.errored) result = convert(result.data, indent);
