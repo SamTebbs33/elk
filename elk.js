@@ -152,7 +152,7 @@ var hash = token(P.string("#"))
 var clss = dot.then(identifier)
 var id = hash.then(identifier)
 var colon = token(P.string(":"))
-var str = type(token(P.regexp(/"((?:\\.|.)*?)"/, 1)).map(interpretEscapes), STRING);
+var str = token(P.regexp(/"((?:\\.|.)*?)"/, 1)).map(a => new nodes.StringNode(interpretEscapes(a)))
 var bracketl = token(P.string("["))
 var bracketr = token(P.string("]"))
 var bracel = token(P.string("{"))

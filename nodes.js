@@ -11,6 +11,26 @@ class Node {
   gen(indent){ return "" }
 }
 
+class StringNode extends Node {
+  constructor(str) {
+    super()
+    this.str = str
+  }
+
+  gen(indent) {
+    str = str.replace(/.*?\$\(([a-z_](?:\.|[a-z_]|[0-9])*)\)/g, function(match) {
+      var index = match.indexOf("$(")
+      var prefix = match.substr(0, index)
+      var varName = match.substring(index + 2, match.length - 1)
+      var varArray = varName.split(".")
+      return prefix + elk.getDataFromContext(varArray)
+    })
+    return elk.makeStr(str, indent)
+  }
+
+}
+exp(StringNode)
+
 class Tag extends Node {
 
   constructor(tag, clss, id, attrs, block) {
