@@ -124,11 +124,11 @@ class Tag extends Node {
   gen(indent) {
     var headerStr = "<" + this.tag + this.clss.gen(0) + this.id.gen(0) + this.attrs.gen(0) + ">"
     var hasBlock = this.block !== null
-    var blockIsSingle = hasBlock && tag.block.type === STATEMENT && (tag.block.node.type === STRING || (tag.block.node.type === TEMPLATE_EXPR && tag.block.node.node.type === TEMPLATE_VAR))
-    var bodyStr = hasBlock ? genBlock(tag.block, blockIsSingle ? 0 : indent + 1) : ""
-    var footerStr = makeStr("</" + tag.name + ">", blockIsSingle ? 0 : indent)
+    var blockIsSingle = hasBlock && (tag.block instanceof StringNode || tag.block instanceof TemplateVar)
+    var bodyStr = hasBlock ? this.block.gen(blockIsSingle ? 0 : indent + 1) : ""
+    var footerStr = elk.makeStr("</" + this.tag + ">", blockIsSingle ? 0 : indent)
     var bodySeparator = blockIsSingle ? "" : "\n"
-    return makeStr(headerStr , indent) + (hasBlock ? (bodySeparator + bodyStr + bodySeparator + footerStr) : "")
+    return elk.makeStr(headerStr , indent) + (hasBlock ? (bodySeparator + bodyStr + bodySeparator + footerStr) : "")
   }
 
 }
