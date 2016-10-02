@@ -189,7 +189,7 @@ var template_else = dollar_sign.then(keyw_else.then(block)).map(b => new nodes.T
 var template_if = P.lazy(function(){return keyw_if.then(P.seqMap(template_expr, block,  optional(P.alt(keyw_else.then(template_if), template_else)), function(expr, block, e) {
   return new nodes.TemplateIf(expr, block, e)
 }))})
-var statements = type(statement.atLeast(0), STATEMENTS)
+var statements = statement.atLeast(0).map(a => new nodes.Statements(a))
 var bracedBlock = surround(bracel, statements, bracer)
 
 var indentString = "\t"
@@ -394,7 +394,7 @@ exp(parse)
 function convert(parseTree, indent) {
   if(!indent) indent = 0
   try {
-    return makeResult(false, null, genStatements(parseTree.node, indent))
+    return makeResult(false, null, parseTree.gen(indent))
   } catch (err) {
     if(err instanceof ElkError) return makeResult(true, err.msg, null)
     else throw err

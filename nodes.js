@@ -177,3 +177,18 @@ class Tag extends Node {
 
 }
 exp(Tag)
+
+class Statements extends Node {
+
+  constructor(stmtArr) {
+    this.stmtArr = stmtArr
+  }
+
+  gen(indent) {
+    var stmtsStr = ""
+    for(var i in this.stmtArr) stmtsStr += (i > 0 ? "\n" : "") + this.stmtArr[i].gen(indent)
+    return stmtsStr
+  }
+
+}
+exp(Statements)
