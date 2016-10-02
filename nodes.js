@@ -31,6 +31,38 @@ class StringNode extends Node {
 }
 exp(StringNode)
 
+class Attribute extends Node {
+
+  constructor(attrName, val) {
+    this.attrName = attrName
+    this.val = val
+  }
+
+  gen(indent) {
+    return attrName + "=\"" + val.gen(0) + "\""
+  }
+
+}
+exp(Attribute)
+
+class Attributes extends Node {
+
+  constructor(attrArray) {
+    this.attrs = attrArray
+  }
+
+  gen(indent) {
+    var attrsStr = ""
+    for(var i in this.attrs) {
+      var attr = this.attrs[i]
+      attrsStr += " " + attr.gen(indent)
+    }
+    return attrsStr
+  }
+
+}
+exp(Attributes)
+
 class Tag extends Node {
 
   constructor(tag, clss, id, attrs, block) {

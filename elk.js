@@ -167,9 +167,9 @@ var keyw_if = token(P.string("if"))
 var keyw_else = token(P.string("else"))
 var statement = P.lazy(function() { return P.alt(str, template_expr, tag) })
 var attribute = P.seqMap(tag_identifier, colon, statement, function(name, c, s) {
-  return {name: name, val: s}
+  return new nodes.Attribute(name, s)
 })
-var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr)
+var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr).map(a => new nodes.Attributes(a))
 var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
 })
