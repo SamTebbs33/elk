@@ -71,7 +71,7 @@ exp(Attributes)
 class TemplateExpr extends Node {
 
   gen(indent) {
-    return this.eval(indent)
+    return elk.makeStr(this.eval(indent), indent)
   }
 
   eval(indent) {

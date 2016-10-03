@@ -1,4 +1,8 @@
 html {
   head: title: "Elk loop templating example"
-  body: ul: for person in $people: li: "Name: $(person.name), age: $(person.age)"
+  body {
+    ul: for person in $people: li: "Name: $(person.name), age: $(person.age)"
+    set("foo", h1: "FoO")
+    $foo
+  }
 }

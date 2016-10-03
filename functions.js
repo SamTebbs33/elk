@@ -18,6 +18,11 @@ elk.addTemplateFunction("list", function (indent, args) {
   return str + "\n" + elk.makeStr("</ul>", indent)
 })
 
+elk.addTemplateFunction("set", function (indent, args) {
+  elk.setDataInContext(args[0].gen(0), args[1].gen(0))
+  return ""
+})
+
 elk.addTemplateFunction("pages", function (indent, args) {
   var path = args.length > 0 ? args[0].gen(0) : "."
   var files = fs.readdirSync(path).filter(function (elem) {
