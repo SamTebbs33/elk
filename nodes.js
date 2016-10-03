@@ -71,6 +71,7 @@ exp(Attributes)
 class TemplateExpr extends Node {
 
   gen(indent) {
+
     return elk.makeStr(this.eval(indent), indent)
   }
 
@@ -86,6 +87,10 @@ class TemplateVar extends TemplateExpr {
   constructor(varArray) {
     super()
     this.varArray = varArray
+  }
+
+  gen(indent) {
+    return elk.makeStr(JSON.stringify(this.eval(indent)), indent)
   }
 
   eval(indent) {
