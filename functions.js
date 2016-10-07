@@ -18,6 +18,11 @@ elk.addTemplateFunction("list", function (indent, args) {
   return str + "\n" + elk.makeStr("</ul>", indent)
 })
 
+elk.addTemplateFunction("js", function (indent, args) {
+  var script = args[0].gen()
+  return new Function(script)()
+})
+
 elk.addTemplateFunction("set", function (indent, args) {
   elk.setDataInContext(args[0].gen(0), args[1].gen(0))
   return ""
