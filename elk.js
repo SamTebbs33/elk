@@ -8,7 +8,8 @@ var escapes = {
   n: '\n',
   r: '\r',
   t: '\t',
-  "\"": "\""
+  "\"": "\"",
+  "\'": "\'"
 };
 
 function exp(val, name) {
