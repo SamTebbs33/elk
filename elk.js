@@ -2,20 +2,22 @@ var P = require("parsimmon")
 var minimist = require('minimist')
 var fs = require("fs")
 
+var escapes = {
+  b: '\b',
+  f: '\f',
+  n: '\n',
+  r: '\r',
+  t: '\t',
+  "\"": "\""
+};
+
 function exp(val, name) {
   if(!name) name = val.name
   module.exports[name] = val
 }
 
 function interpretEscapes(str) {
-  var escapes = {
-    b: '\b',
-    f: '\f',
-    n: '\n',
-    r: '\r',
-    t: '\t'
-  };
-  return str.replace(/\\(u[0-9a-fA-F]{4}|[^u])/, function(_, escape) {
+  return str.replace(/\\(u[0-9a-fA-F]{4}|[^u])/g, function(_, escape) {
     var type = escape.charAt(0);
     var hex = escape.slice(1);
     if (type === 'u') return String.fromCharCode(parseInt(hex, 16));
