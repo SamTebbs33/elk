@@ -14,7 +14,24 @@ class Node {
   gen(indent){ return "" }
 }
 
-class StringNode extends Node {
+class Statement extends Node {
+  constructor() {
+    super()
+    this.metadata = null
+  }
+
+  wrapMetadata(indent, genStr) {
+    if(this.metadata !== null) {
+      var metaStr = this.metadata.gen(0)
+      if(metaStr !== "") return "<span" + metaStr + ">" + genStr + "</span>"
+    }
+    return genStr
+  }
+
+}
+exp(Statement)
+
+class StringNode extends Statement {
   constructor(str) {
     super()
     this.str = str
@@ -28,7 +45,7 @@ class StringNode extends Node {
       var varArray = varName.split(".")
       return prefix + elk.getDataFromContext(varArray)
     })
-    return elk.makeStr(s, indent)
+    return elk.makeStr(this.wrapMetadata(0, s), indent)
   }
 
 }
@@ -68,11 +85,10 @@ class Attributes extends Node {
 }
 exp(Attributes)
 
-class TemplateExpr extends Node {
+class TemplateExpr extends Statement {
 
   gen(indent) {
-
-    return elk.makeStr(this.eval(indent), indent)
+    return elk.makeStr(this.wrapMetadata(0, this.eval(indent)), indent)
   }
 
   eval(indent) {
@@ -168,22 +184,36 @@ class TemplateIf extends TemplateExpr {
 }
 exp(TemplateIf)
 
-class Tag extends Node {
+class Metadata extends Node {
 
-  constructor(tag, clss, id, attrs, block) {
+  constructor(c, i, a) {
     super()
-    this.tag = tag
-    this.clss = clss
-    this.id = id
-    this.attrs = attrs
-    this.block = block
+    this.clss = c
+    this.id = i
+    this.attrs = a
   }
 
   gen(indent) {
     var classStr = this.clss ? " class='" + this.clss + "'" : ""
     var idStr = this.id ? " id='" + this.id + "'" : ""
     var attrsStr = this.attrs ? this.attrs.gen(0) : ""
-    var headerStr = "<" + this.tag + classStr + idStr + attrsStr + ">"
+    return classStr + idStr + attrsStr
+  }
+
+}
+exp(Metadata)
+
+class Tag extends Statement {
+
+  constructor(tag, m, block) {
+    super()
+    this.tag = tag
+    this.metadata = m
+    this.block = block
+  }
+
+  gen(indent) {
+    var headerStr = "<" + this.tag + this.metadata.gen(0) + ">"
     var hasBlock = this.block !== null
     var blockIsSingle = hasBlock && (this.block instanceof StringNode || this.block instanceof TemplateVar)
     var bodyStr = hasBlock ? this.block.gen(blockIsSingle ? 0 : indent + 1) : ""

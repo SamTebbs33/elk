@@ -137,16 +137,24 @@ var keyw_for = token(P.string("for"))
 var keyw_in = token(P.string("in"))
 var keyw_if = token(P.string("if"))
 var keyw_else = token(P.string("else"))
-var statement = P.lazy(function() { return P.alt(str, template_expr, tag) })
+var statement = P.lazy(function() {
+  return P.seqMap(P.alt(str, template_expr, tag), optional(metadata), function (stmt, m) {
+    if(stmt.metadata === null) stmt.metadata = m
+    return stmt
+  })
+})
 var attribute = P.seqMap(tag_identifier, colon, statement, function(name, c, s) {
   return new nodes.Attribute(name, s)
 })
 var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr).map(a => new nodes.Attributes(a))
+var metadata = P.seqMap(optional(clss), optional(id), optional(attributes), function (c, i, a) {
+  return new nodes.Metadata(c, i, a)
+})
 var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
 })
-var tag = P.seqMap(tag_identifier, optional(clss), optional(id), optional(attributes), optional(block), function (name, cls, id, attrs, block) {
-  return new nodes.Tag(name, cls, id, attrs, block)
+var tag = P.seqMap(tag_identifier, optional(metadata), optional(block), function (name, m, block) {
+  return new nodes.Tag(name, m, block)
 })
 var template_expr = P.lazy(function () { return P.alt(template_loop, template_if, template_func_call, template_var) })
 var template_var = dollar_sign.then(P.sepBy1(identifier, dot)).map(a => new nodes.TemplateVar(a))
