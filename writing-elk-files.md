@@ -15,10 +15,34 @@ html: head: title: "A page title"
 {% sample lang="html" -%}
 ```html
 <html>
-    <head>
-        <title>A page title</title>
-    </head>
+  <head>
+    <title>A page title</title>
+  </head>
 </html>
 ```
+{% endmethod %}
+    * A tag can have a class, id and attributes too.
+{% sample lang="elk" -%}
+
+```elk
+
+html: body: div.someClass#someID [attribute: "value"]
+
+```
+
+
+
+{% sample lang="html" -%}
+
+```html
+
+<html>
+  <body>
+    <div class="someClass" id="someID" attribute="value"></div>
+  </body>
+</html>
+
+```
+
 {% endmethod %}
 
