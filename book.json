@@ -1,16 +1,18 @@
 {
     "plugins": ["theme-api"], 
     "pluginsConfig": { 
-        "theme-api": { 
+        "theme-api": {
+            "theme": "dark",
+            "split": true,
             "languages": [ 
                 { 
-                    "lang": "js",
-                    "name": "JavaScript",
+                    "lang": "elk",
+                    "name": "Elk",
                     "default": true
                 },
                 {
-                    "lang": "go",
-                    "name": "Go"
+                    "lang": "html",
+                    "name": "HTML"
                 } 
             ] 
         } 
