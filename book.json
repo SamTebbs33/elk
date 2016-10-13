@@ -1,11 +1,11 @@
 {
-    "plugins": ["theme-api"], 
-    "pluginsConfig": { 
+    "plugins": ["theme-api"],
+    "pluginsConfig": {
         "theme-api": {
             "theme": "dark",
             "split": true,
-            "languages": [ 
-                { 
+            "languages": [
+                {
                     "lang": "elk",
                     "name": "Elk",
                     "default": true
@@ -13,8 +13,8 @@
                 {
                     "lang": "html",
                     "name": "HTML"
-                } 
-            ] 
-        } 
+                }
+            ]
+        }
     } 
 }
