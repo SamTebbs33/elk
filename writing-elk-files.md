@@ -3,3 +3,6 @@ Elk files can be as simple or complex as needed and should seem familiar to thos
 
 ## Statements
 All elk files are made up of sequential **statements**. A statement can be one of the following.
+
+* Tag
+    * A plain tag similar to those in HTML. It is reccommended that you start all Elk files with an "html" tag along with "head" and "body" if necessary.
