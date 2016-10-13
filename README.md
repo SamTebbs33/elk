@@ -1,58 +1,12 @@
-# elk
-Write HTML in a more concise way
+# Elk
 
-## Example
-```
-html {
-  head: title: "Some title"
-  body {
-    h1: "I'm a header"
-    p {
-      "I'm in a paragraph"
-      a [href: "http://google.com"]: "I'm a link"
-    }
-  }
-}
-```
-See more examples in the [examples](examples) directory.
+Elk is a templating language written in JavaScript that compiles to HTML. It comes as a Node.js plugin and a command line program will be in the works soon.
 
-## Getting started
-**Note:** At the moment, I haven't packaged the program into a self-contained executable, this is coming!
+## Installation
 
-1. Clone the repo.
-2. Make some elk files under the repo folder using the [format](#markup-format) (check the [examples](examples) for reference and inspiration)
-3. Convert them to HTML (see the [usage](#usage))
-4. Deploy the HTML files to a site
-
-## Markup format
-An elk document is made up of tags and strings. Tags are inserted into the generated HTML as tags and strings are inserted as-is (with escape sequences converted).
-
-### Strings
-A string is a sequence of characters enclosed in `"`.
-
-### Tags
-A `?` character is used to show that something is optional.
-Tags come in the format `name class? id? attributes? block?`
-* `name`: Any valid HTML tag name
-* `class`: A `.` followed by a valid CSS class name
-* `id`: A `#` followed by a valid CSS id name
-* `attributes`: Comma-separated attributes enclosed in `[` and `]`
-  * `attribute`: An attribute name, followed by a `:` and a string value.
-* `block`: A `:` followed by a string or tag, or zero or more strings or tags enclosed in `{` and `}`
-
-Check the [examples](examples) directory for example usages of the format.
+Create a Node.js project and run `npm install elk` then use `var elk = require("elk")` in your project source to import it.
 
 ## Usage
-Compile a file or a directory with `node elk.js [file/dir]` and add below flags
+1. Learn how to write Elk files
+2. Use the Node.js module to compile them to HTML
 
-* `-r`: Recurse over subdirectories, valid only if a directory is passed as input
-* `-o [output]`: Specify an output destination.
-Default is the input but with ".html" extension.
-The output type (file/directory) should match the input type.
-
-### Example Usage
-* Compile **foo.elk** to **foo.html**: `node elk.js foo.elk`
-* Compile all elk files in **foo**: `node elk.js foo`
-* Compile **foo.elk** to **bar.html**: `node elk.js foo.elk -o bar.html`
-* Compile all elk files in **foo** to **bar**: `node elk.js foo -o bar`
-* Compile all elk files in **foo** and its subdirectories to **bar**: `node elk.js foo -o bar -r`
