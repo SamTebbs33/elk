@@ -25,17 +25,13 @@ html: head: title: "A page title"
 {% method -%}
     * A tag can have a class, id and attributes too.
 {% sample lang="elk" -%}
-
 ```elk
-
 html: body: div.someClass#someID [attribute: "value"]
 
 ```
 
 {% sample lang="html" -%}
-
 ```html
-
 <html>
   <body>
     <div class="someClass" id="someID" attribute="value"></div>
