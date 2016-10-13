@@ -22,6 +22,7 @@ html: head: title: "A page title"
 ```
 {% endmethod %}
 
+{% method -%}
     * A tag can have a class, id and attributes too.
 {% sample lang="elk" -%}
 
