@@ -4,9 +4,9 @@
         "theme-api": { 
             "languages": [ 
                 { 
-                    "lang": "js", // sample lang argument 
-                    "name": "JavaScript", // corresponding name to be displayed 
-                    "default": true // default language to show 
+                    "lang": "js",
+                    "name": "JavaScript",
+                    "default": true
                 },
                 {
                     "lang": "go",
