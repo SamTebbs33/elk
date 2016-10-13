@@ -21,6 +21,7 @@ html: head: title: "A page title"
 </html>
 ```
 {% endmethod %}
+
     * A tag can have a class, id and attributes too.
 {% sample lang="elk" -%}
 
@@ -29,8 +30,6 @@ html: head: title: "A page title"
 html: body: div.someClass#someID [attribute: "value"]
 
 ```
-
-
 
 {% sample lang="html" -%}
 
@@ -43,6 +42,5 @@ html: body: div.someClass#someID [attribute: "value"]
 </html>
 
 ```
-
 {% endmethod %}
 
