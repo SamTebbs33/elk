@@ -8,13 +8,17 @@ All elk files are made up of sequential **statements**. A statement can be one o
 * Tag
     * A plain tag similar to those in HTML. It is reccommended that you start all Elk files with an "html" tag along with "head" and "body" if necessary.
 {% sample lang="elk" -%}
+```elk
 html: head: title: "A page title"
+```
 
 {% sample lang="html" -%}
+```html
 <html>
     <head>
         <title>A page title</title>
     </head>
 </html>
+```
 {% endmethod %}
 
