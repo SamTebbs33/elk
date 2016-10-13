@@ -5,14 +5,15 @@ var elk = require("./elk.js")
 var fs = require("fs")
 
 elk.addTemplateFunction("list", function (indent, args) {
-  var str = elk.makeStr("<ul>", indent)
+  var str = "<ul>"
   var array = args[0].eval(indent)
   var format = args[1]
   var formatIsSingle = format.isSimple()
+  var formatIndent = formatIsSingle ? 0 : indent + 1
   for (var i in array) {
     var item = array[i]
     elk.pushDataContext({_item: item})
-    str += "\n" + elk.makeStr("<li>", indent + 1) + (formatIsSingle ? "" : "\n") + format.gen(formatIsSingle ? 0 : indent + 2) + (formatIsSingle ? "" : "\n") + elk.makeStr("</li>", formatIsSingle ? 0 : indent + 1)
+    str += "\n" + elk.makeStr("<li>", indent + 1) + (formatIsSingle ? "" : "\n") + format.gen(formatIndent) + (formatIsSingle ? "" : "\n") + elk.makeStr("</li>", formatIndent)
     elk.popDataContext()
   }
   return str + "\n" + elk.makeStr("</ul>", indent)
@@ -39,6 +40,6 @@ elk.addTemplateFunction("pages", function (indent, args) {
 elk.addTemplateFunction("include", function (indent, args) {
   var path = args[0].gen(0) + elk.fileExtension
   var content = fs.readFileSync(path).toString()
-  var compiled = elk.compile(content, elk.getTemplateDataRoot(), indent)
+  var compiled = elk.compile(content, elk.getTemplateDataRoot(), 0)
   return compiled.data ? compiled.data : ""
 })
