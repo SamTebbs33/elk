@@ -1,5 +1,5 @@
 # Summary
 
-* [Introduction](../README.md)
+* [Introduction](README.md)
 * [Writing Elk files](writing-elk-files.md)
 
