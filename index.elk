@@ -6,7 +6,7 @@ html {
         link [rel: "stylesheet", href: "https://fonts.googleapis.com/css?family=Merriweather:100,300,400,700"]
         script [src: "https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"]
         script [src: "https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.5.0/socket.io.min.js"]
-        script [src: "script.js"]
+        script [src: "bundle.js"]
     }
     body {
         div .container: section .edit-text #left: p .text #elk-text [contenteditable: "true"]

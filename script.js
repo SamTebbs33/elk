@@ -1,22 +1,10 @@
-var socket = io('http://tebbs.space:3000');
+var elk = require("elk")
 
-var sendElk = function() {
-    console.log("sending elk");
-    var text = $('#elk-text').html();
-    console.log(text);
-    socket.emit('elk', text);
+setInterval(compile, 1000)
+
+function compile() {
+    console.log("Compiling");
+    var elkText = $("#elk-text").val()
+    var result = elk.compile(elkText, {}, 0)
+    console.log(result);
 }
-
-$(document).keyup(function(e) {
-    if (e.which == 13) {
-        sendElk();
-    }
-});
-
-setInterval(sendElk, 1000);
-
-socket.on('html', function(data) {
-    console.log('received compiled elk');
-    console.log(data);
-    $('#html-text').html(data);
-});
