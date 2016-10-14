@@ -1,9 +1,0 @@
-html {
-  head: title: "Elk div example"
-  body {
-    div {
-      "I'm inside a div"
-      p: "I'm inside a paragraph"
-    }
-  }
-}

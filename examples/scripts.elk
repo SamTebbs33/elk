@@ -1,4 +1,0 @@
-html {
-  head: title: "Elk script example"
-  body: script: "alert('hi')"
-}
