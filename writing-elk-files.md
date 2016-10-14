@@ -21,15 +21,12 @@ html: head: title: "A page title"
 </html>
 ```
 {% endmethod %}
-
 {% method -%}
     * A tag can have a class, id and attributes too.
 {% sample lang="elk" -%}
 ```elk
 html: body: div.someClass#someID [attribute: "value"]
-
 ```
-
 {% sample lang="html" -%}
 ```html
 <html>
@@ -37,7 +34,29 @@ html: body: div.someClass#someID [attribute: "value"]
     <div class="someClass" id="someID" attribute="value"></div>
   </body>
 </html>
-
 ```
 {% endmethod %}
+{% method -%}
+    * Tags can contain a block other more statements. A block of a single statement is preceeded by a colon and a block of multiple statements is surrounded by braces. These form the content of the HTML tag.
+{% sample lang="elk" -%}
+```elk
+html: body: h1: "A header in the body"
+```
+```elk
+html: body {
+    h1: "A header in the body"
+    h2: "Another header in the body"
+}
+```
+{% sample lang="html" -%}
+```html
+<html>
+  <body>
+    <h1>A header in the body</h1>
+    <h2>Another header in the body</h1>
+  </body>
+</html>
+```
+{% endmethod %}
+
 
