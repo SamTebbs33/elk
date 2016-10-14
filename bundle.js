@@ -300,6 +300,8 @@ function compileFiles(files, outPath, data, config) {
 
 require("./functions.js")
 var nodes = require("./nodes.js")
+if(window) window.elk = module.exports
+
 },{"./functions.js":3,"./nodes.js":6,"fs":1,"minimist":4,"parsimmon":5}],3:[function(require,module,exports){
 /**
  * Created by samtebbs on 28/09/2016.
