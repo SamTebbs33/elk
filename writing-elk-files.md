@@ -51,6 +51,13 @@ html: body {
 {% sample lang="html" -%}
 ```html
 <html>
+ <body>
+   <h1>A header in the body</h1>
+ </body>
+</html>
+```
+```html
+<html>
   <body>
     <h1>A header in the body</h1>
     <h2>Another header in the body</h1>
