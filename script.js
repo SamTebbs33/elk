@@ -1,5 +1,3 @@
-var elk = require("elk")
-
 setInterval(compile, 1000)
 
 function compile() {
