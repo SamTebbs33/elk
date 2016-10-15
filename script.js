@@ -1,8 +1,12 @@
-setInterval(compile, 1000)
+setInterval(compile, 50)
+var oldText = ""
 
 function compile() {
-    console.log("Compiling");
     var elkText = $("#elk-text").val()
-    var result = elk.compile(elkText, {}, 0)
-    console.log(result);
+    if(elkText !== oldText) {
+        oldText = elkText
+        var result = elk.compile(elkText, {}, 0)
+        if(!result.errored) $("#html-text").html(result.data)
+        console.log(result);
+    }
 }
