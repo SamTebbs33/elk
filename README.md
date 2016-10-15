@@ -1,5 +1,5 @@
-Elk ![Elk](elk.png)
--------------------
+<img src="elk.png" width="100px" height="100px" /> Elk
+===
 
 Elk is a templating language written in JavaScript that compiles to HTML. It comes as a Node.js plugin and a command line program will be in the works soon.
 
