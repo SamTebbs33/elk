@@ -21,7 +21,7 @@ html: head: title: "A page title"
 ```
 {% endmethod %}
 {% method -%}
-    * A tag can have a class, id and attributes too.
+    * A tag can have a class, id and comma-attributes too.
 {% sample lang="elk" -%}
 ```elk
 html: body: div.someClass#someID [attribute: "value"]
@@ -64,5 +64,4 @@ html: body {
 </html>
 ```
 {% endmethod %}
-
-
+  * 
