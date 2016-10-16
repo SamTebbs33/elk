@@ -67,15 +67,22 @@ html: body {
 * A plain string is also a statement and supports common escape characters. Strings are inserted into the resulting HTML.
 * Template expression
 {% method -%}
+  * Variables are used to access the data provided on compilation. Nested variables are separated by dots. The following example uses `{ title: "John's page", author: { name: "John", email: "john@smith.me" } }` and the header tag shows how string interpolation is done.
 {% sample lang="elk" -%}
 ```elk
-html: body: div.someClass#someID [attribute: "value"]
+html {
+  head: title: $title
+  body: h1: "Made by $(author.name) ($(author.email))"
+}
 ```
 {% sample lang="html" -%}
 ```html
 <html>
+  <head>
+    <title>John's page</title>
+  </head>
   <body>
-    <div class="someClass" id="someID" attribute="value"> </div>
+    <h1>Made by John (john@smith.me)</h1>
   </body>
 </html>
 ```
