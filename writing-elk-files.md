@@ -5,8 +5,8 @@ Elk files can be as simple or complex as needed and should seem familiar to thos
 All elk files are made up of sequential **statements**. A statement can be one of the following.
 
 {% method -%}
-* Tag
-    * A plain tag similar to those in HTML. It is reccommended that you start all Elk files with an "html" tag along with "head" and "body" if necessary.
+### Tag
+A plain tag similar to those in HTML. It is reccommended that you start all Elk files with an "html" tag along with "head" and "body" if necessary.
 {% sample lang="elk" -%}
 ```elk
 html: head: title: "A page title"
@@ -21,7 +21,8 @@ html: head: title: "A page title"
 ```
 {% endmethod %}
 {% method -%}
-    * A tag can have a class, id and comma-separated attributes too.
+#### Metadata
+A tag can have a class, id and comma-separated attributes too.
 {% sample lang="elk" -%}
 ```elk
 html: body: div.someClass#someID [attribute: "value"]
@@ -36,7 +37,8 @@ html: body: div.someClass#someID [attribute: "value"]
 ```
 {% endmethod %}
 {% method -%}
-    * Tags can contain a block other more statements. A block of a single statement is preceeded by a colon and a block of multiple statements is surrounded by braces. These form the content of the HTML tag.
+#### Blocks
+Tags can contain a block other more statements. A block of a single statement is preceeded by a colon and a block of multiple statements is surrounded by braces. These form the content of the HTML tag.
 {% sample lang="elk" -%}
 ```elk
 html: body: h1: "A header in the body"
@@ -64,10 +66,12 @@ html: body {
 </html>
 ```
 {% endmethod %}
-* A plain string is also a statement and supports common escape characters. Strings are inserted into the resulting HTML.
-* Template expression
+#### String
+A plain string is also a statement and supports common escape characters. Strings are inserted into the resulting HTML.
+### Template expression
+#### Variables
 {% method -%}
-  * Variables are used to access the data provided on compilation. Nested variables are separated by dots. The following example uses `{ title: "John's page", author: { name: "John", email: "john@smith.me" } }` and the header tag shows how string interpolation is done.
+Variables are used to access the data provided on compilation. Nested variables are separated by dots. The following example uses `{ title: "John's page", author: { name: "John", email: "john@smith.me" } }` and the header tag shows how string interpolation is done.
 {% sample lang="elk" -%}
 ```elk
 html {
