@@ -64,9 +64,9 @@ html: body {
 </html>
 ```
 {% endmethod %}
-* A plain string is also a statement and supports common escape characters. Strings are inserted into the resulting.
+* A plain string is also a statement and supports common escape characters. Strings are inserted into the resulting HTML.
+* Template expression
 {% method -%}
-  * Template expression
 {% sample lang="elk" -%}
 ```elk
 html: body: div.someClass#someID [attribute: "value"]
