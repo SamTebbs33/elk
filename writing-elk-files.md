@@ -66,7 +66,7 @@ html: body {
 {% endmethod %}
 * A plain string is also a statement and supports common escape characters. Strings are inserted into the resulting.
 {% method -%}
-  * A tag can have a class, id and comma-separated attributes too.
+  * Template expression
 {% sample lang="elk" -%}
 ```elk
 html: body: div.someClass#someID [attribute: "value"]
