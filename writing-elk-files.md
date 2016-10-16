@@ -27,12 +27,13 @@ html: head: title: "A page title"
 html: body: div.someClass#someID [attribute: "value"]
 ```
 {% sample lang="html" -%}
-html
+```html
 <html>
   <body>
     <div class="someClass" id="someID" attribute="value"></div>
   </body>
 </html>
+```
 {% endmethod %}
 {% method -%}
     * Tags can contain a block other more statements. A block of a single statement is preceeded by a colon and a block of multiple statements is surrounded by braces. These form the content of the HTML tag.
