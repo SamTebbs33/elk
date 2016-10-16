@@ -64,4 +64,4 @@ html: body {
 </html>
 ```
 {% endmethod %}
-  * 
+* A plain string is also a statement and supports common escape characters. Strings are inserted into the resulting HTML as-is.
