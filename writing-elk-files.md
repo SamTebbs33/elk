@@ -11,7 +11,6 @@ All elk files are made up of sequential **statements**. A statement can be one o
 ```elk
 html: head: title: "A page title"
 ```
-
 {% sample lang="html" -%}
 ```html
 <html>
