@@ -66,9 +66,12 @@ html: body {
 </html>
 ```
 {% endmethod %}
+
 #### String
 A plain string is also a statement and supports common escape characters. Strings are inserted into the resulting HTML.
+
 ### Template expression
+
 #### Variables
 {% method -%}
 Variables are used to access the data provided on compilation. Nested variables are separated by dots. The following example uses `{ title: "John's page", author: { name: "John", email: "john@smith.me" } }` and the header tag shows how string interpolation is done.
@@ -91,3 +94,30 @@ html {
 </html>
 ```
 {% endmethod %}
+
+#### Function calls
+{% method -%}
+There is a collection of functions defined as standard. These can be called with a number of comma-separated arguments. The `include()` function can be used to include the content of another elk file at the call site.
+{% sample lang="elk" -%}
+```elk
+// footer.elk
+footer: "Made by John Smith"
+```
+```elk
+// index.elk
+html {
+  body: {
+    h1: "Title page"
+    include("footer")
+  }
+}
+```
+{% sample lang="html" -%}
+```html
+<html>
+  <body>
+    <h1>Title page</h1>
+    Made by John Smith
+  </body>
+</html>
+```
