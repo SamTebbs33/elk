@@ -97,7 +97,7 @@ html {
 
 #### Function calls
 {% method -%}
-There is a collection of functions defined as standard. These can be called with a number of comma-separated arguments. The `include()` function can be used to include the content of another elk file at the call site.
+There is a collection of functions defined as standard that can be called with a number of comma-separated arguments (any statement). It is also possible to define custom templating functions. The `include()` function can be used to include the content of another elk file at the call site.
 {% sample lang="elk" -%}
 ```elk
 // footer.elk
