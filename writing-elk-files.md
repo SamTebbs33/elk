@@ -101,7 +101,7 @@ There is a collection of functions defined as standard that can be called with a
 {% sample lang="elk" -%}
 ```elk
 // footer.elk
-footer: "Made by John Smith"
+h2: "Made by John Smith"
 ```
 ```elk
 // index.elk
@@ -117,7 +117,7 @@ html {
 <html>
   <body>
     <h1>Title page</h1>
-    Made by John Smith
+    <h2>Made by John Smith</h2>
   </body>
 </html>
 ```
