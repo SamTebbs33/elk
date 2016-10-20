@@ -133,7 +133,7 @@ html: head: title:
   else: "No title given"
 ```
 {% sample lang="html" -%}
-// With `{ title: "John Smith's Page" }`
+With `{ title: "John Smith's Page" }`
 ```html
 <html>
   <head>
@@ -141,7 +141,7 @@ html: head: title:
   </head>
 </html>
 ```
-// With no title in data
+With no title in data
 ```html
 <html>
   <head>
