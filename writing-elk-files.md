@@ -125,7 +125,7 @@ html {
 
 #### If statements
 {% method -%}
-If statements can be used to direct HTML generation. If the expression evaluates to a truthy value, then the block is followed, else the optional else/elseif statement is followed.
+If statements can be used to direct HTML generation. If the expression evaluates to a truthy value, then the block is followed, else the optional else/elseif statement is followed. An if statement's block is the same as a tag block (colon with single statement or multiple statements surrounded by braces)
 {% sample lang="elk" -%}
 ```elk
 html: head: title:
