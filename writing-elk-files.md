@@ -122,3 +122,31 @@ html {
 </html>
 ```
 {% endmethod %}
+
+#### If statements
+{% method -%}
+If statements can be used to direct HTML generation. If the expression evaluates to a truthy value, then the block is followed, else the optional else/elseif statement is followed.
+{% sample lang="elk" -%}
+```elk
+html: head: title:
+  if $title: $title
+  else: "No title given"
+```
+{% sample lang="html" -%}
+// With `{ title: "John Smith's Page" }`
+```html
+<html>
+  <head>
+    <title>John Smith's Page</title>
+  </head>
+</html>
+```
+// With no title in data
+```html
+<html>
+  <head>
+    <title>No title given</title>
+  </head>
+</html>
+```
+{% endmethod %}
