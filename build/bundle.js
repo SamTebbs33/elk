@@ -298,15 +298,15 @@ function compileFiles(files, outPath, data, config) {
   }
 }
 
-require("./functions.js")
-var nodes = require("./nodes.js")
+require("./../js/functions.js")
+var nodes = require("./../js/nodes.js")
 if(window) window.elk = module.exports
 
 },{"./functions.js":3,"./nodes.js":6,"fs":1,"minimist":4,"parsimmon":5}],3:[function(require,module,exports){
 /**
  * Created by samtebbs on 28/09/2016.
  */
-var elk = require("./elk.js")
+var elk = require("./../js/elk.js")
 var fs = require("fs")
 
 elk.addTemplateFunction("list", function (indent, args) {
