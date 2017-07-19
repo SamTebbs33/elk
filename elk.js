@@ -294,7 +294,8 @@ function compileFiles(files, outPath, data, config) {
     if(error) return error
   }
 }
+exp(compileFiles)
 
 require("./functions.js")
 var nodes = require("./nodes.js")
-if(window) window.elk = module.exports
+//if(window) window.elk = module.exports
