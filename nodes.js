@@ -2,6 +2,8 @@
  * Created by samtebbs on 28/09/2016.
  */
 
+var elk = require("./elk.js")
+
 function exp(val, name) {
   if(!name) name = val.name
   module.exports[name] = val
