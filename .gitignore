@@ -31,3 +31,6 @@ tmp
 
 # IDE
 .idea/
+
+# OS
+.DS_Store
