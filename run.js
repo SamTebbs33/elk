@@ -4,11 +4,13 @@
 const fs = require("fs")
 var elk = require("./elk.js")
 
+var argStart = 0
+
 var args = process.argv;
-if(args.length > 2) {
-    var file = args[2];
-    var out = args.length > 3 ? args[3] : "."
-    var data = args.length > 4 ? JSON.parse(fs.readFileSync(args[4], 'utf8')) : null
+if(args.length > argStart) {
+    var file = args[argStart];
+    var out = args.length > argStart + 1 ? args[argStart + 1] : "."
+    var data = args.length > argStart + 2 ? JSON.parse(fs.readFileSync(args[4], 'utf8')) : null
     var compileResult = elk.compileFiles([file], out, data, null)
 
     // Print error data
