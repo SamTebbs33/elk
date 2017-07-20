@@ -1,6 +1,7 @@
 var P = require("parsimmon")
 var minimist = require('minimist')
 var fs = require("fs")
+var path = require("path")
 
 var escapes = {
   b: '\b',
@@ -247,6 +248,7 @@ function convert(parseTree, indent) {
 exp(convert)
 
 function compile(content, data, indent) {
+  if(!indent) indent = 0
   if(!data) data = {}
   pushDataContext(data)
   var result = parse(content)
@@ -256,7 +258,7 @@ function compile(content, data, indent) {
 }
 exp(compile)
 
-function compileFile(path, outputPath, data, config) {
+function compileFile(path, outputPath, data) {
   var content = fs.readFileSync(path).toString()
   var output = compile(content, data)
   if(output.errored) return output
@@ -286,13 +288,15 @@ function compileFiles(files, outPath, data, config) {
     recurse: false
   }
   if(!data) data = {}
+  var result = {}
   for(var i in files) {
     var file = files[i]
-    var error = null
-    if(isDir(file)) error = compileDir(file, outPath, data, config)
-    else error = compileFile(file, outPath, data, config)
-    if(error) return error
+    var compileResult = null
+    if(isDir(file)) compileResult = compileDir(file, outPath, data, config)
+    else compileResult = compileFile(file, outPath + "/" + path.basename(file).replace(".elk", ".html"), data)
+    result[file] = compileResult
   }
+  return result
 }
 exp(compileFiles)
 
