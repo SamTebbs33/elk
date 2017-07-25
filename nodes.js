@@ -215,13 +215,13 @@ class Tag extends Statement {
   }
 
   gen(indent) {
-    var headerStr = "<" + this.tag + this.metadata.gen(0) + ">"
     var hasBlock = this.block !== null
+    var headerStr = "<" + this.tag + this.metadata.gen(0) + ">"
     var blockIsSingle = hasBlock && (this.block instanceof StringNode || this.block instanceof TemplateVar)
     var bodyStr = hasBlock ? this.block.gen(blockIsSingle ? 0 : indent + 1) : ""
     var footerStr = elk.makeStr("</" + this.tag + ">", blockIsSingle ? 0 : indent)
     var bodySeparator = blockIsSingle ? "" : "\n"
-    return elk.makeStr(headerStr , indent) + (hasBlock ? (bodySeparator + bodyStr + bodySeparator + footerStr) : "")
+    return elk.makeStr(headerStr , indent) + (hasBlock ? (bodySeparator + bodyStr + bodySeparator + footerStr) : ("</" + this.tag + ">"))
   }
 
 }
