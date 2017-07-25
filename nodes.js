@@ -108,7 +108,7 @@ class TemplateVar extends TemplateExpr {
   }
 
   gen(indent) {
-    return elk.makeStr(JSON.stringify(this.eval(indent)), indent)
+    return elk.makeStr(this.eval(indent), indent)
   }
 
   eval(indent) {
