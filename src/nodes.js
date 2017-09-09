@@ -75,6 +75,10 @@ class Attributes extends Node {
     this.attrs = attrArray
   }
 
+  add(name, val) {
+    this.attrs.push(Attribute(name, val))
+  }
+
   gen(indent) {
     var attrsStr = ""
     for(var i in this.attrs) {
@@ -188,11 +192,21 @@ exp(TemplateIf)
 
 class Metadata extends Node {
 
-  constructor(c, i, a) {
+  constructor(c, i, h, a) {
     super()
     this.clss = c
     this.id = i
     this.attrs = a
+    this.href = h
+  }
+
+  onTag(tag) {
+    if(this.href) {
+      var hrefAttribute = "src"
+      if(tag.tag == "a") hrefAttribute = "href"
+      if (this.attrs) this.attrs.add(hrefAttribute, this.href)
+      else this.attrs = new Attributes([new Attribute(hrefAttribute, this.href)])
+    }
   }
 
   gen(indent) {
@@ -212,6 +226,7 @@ class Tag extends Statement {
     this.tag = tag
     this.metadata = m
     this.block = block
+    if(this.metadata) this.metadata.onTag(this)
   }
 
   gen(indent) {

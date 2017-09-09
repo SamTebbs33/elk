@@ -121,6 +121,7 @@ var whitespace = P.regexp(/\s*/m)
 var tag_identifier = token(P.regexp(/[a-zA-Z0-9]+/))
 var identifier = token(P.regexp(/-?[_a-zA-Z]+[_a-zA-Z0-9-]*/))
 var dot = token(P.string("."))
+var at = token(P.string("@"))
 var hash = token(P.string("#"))
 var clss = dot.then(identifier)
 var id = hash.then(identifier)
@@ -145,12 +146,13 @@ var statement = P.lazy(function() {
     return stmt
   })
 })
+var href = at.then(statement)
 var attribute = P.seqMap(tag_identifier, equals, statement, function(name, c, s) {
   return new nodes.Attribute(name, s)
 })
 var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr).map(a => new nodes.Attributes(a))
-var metadata = P.seqMap(optional(clss), optional(id), optional(attributes), function (c, i, a) {
-  return new nodes.Metadata(c, i, a)
+var metadata = P.seqMap(optional(clss), optional(id), optional(href), optional(attributes), function (c, i, h, a) {
+  return new nodes.Metadata(c, i, h, a)
 })
 var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
