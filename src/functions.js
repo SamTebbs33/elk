@@ -17,6 +17,8 @@ elk.addTemplateFunction("list", function (indent, args) {
     elk.popDataContext()
   }
   return str + "\n" + elk.makeStr("</ul>", indent)
+})
+
 // Returns the node if the first argument is true
 elk.addTemplateFunction("if", function (indent, args) {
   if (args[0].exists() && args[0].gen(indent) == "true") return args[1].gen(indent);
