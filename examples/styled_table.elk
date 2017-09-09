@@ -1,7 +1,7 @@
 html {
   head: title: "Elk styled table example"
   body {
-    table [border: "2px"] {
+    table [border = "2px"] {
       tr { th: "Rank" th: "Country" th: "Population" }
       tr { td: "1" td: "China" td: "1,367,485,388" }
       tr { td: "2" td: "India" td: "1,251,695,584" }
