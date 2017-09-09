@@ -25,7 +25,7 @@ html: head: title: "A page title"
 A tag can have a class, id and comma-separated attributes too.
 {% sample lang="elk" -%}
 ```elk
-html: body: div.someClass#someID [attribute: "value"]
+html: body: div.someClass#someID [attribute = "value"]
 ```
 {% sample lang="html" -%}
 ```html
