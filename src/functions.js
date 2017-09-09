@@ -4,19 +4,27 @@
 var elk = require("./elk.js")
 var fs = require("fs")
 
-elk.addTemplateFunction("list", function (indent, args) {
-  var str = "<ul>"
-  var array = args[0].eval(indent)
-  var format = args[1]
+function map(indent, format, array, mapper) {
+  var str = ""
   var formatIsSingle = format.isSimple()
   var formatIndent = formatIsSingle ? 0 : indent + 1
   for (var i in array) {
     var item = array[i]
     elk.pushDataContext({_item: item})
-    str += "\n" + elk.makeStr("<li>", indent + 1) + (formatIsSingle ? "" : "\n") + format.gen(formatIndent) + (formatIsSingle ? "" : "\n") + elk.makeStr("</li>", formatIndent)
+    str += mapper(item, format, formatIndent)
     elk.popDataContext()
   }
-  return str + "\n" + elk.makeStr("</ul>", indent)
+  return str
+}
+
+elk.addTemplateFunction("list", function (indent, args) {
+  var str = "<ul>"
+  var mapper = (x, f, i) => "\n" + elk.makeStr("<li>", i + 1) + (f.isSimple() ? "" : "\n") + f.gen(i) + (f.isSimple() ? "" : "\n") + elk.makeStr("</li>", i)
+  return "<ul>" + map(indent, args[1], args[0].eval(indent), mapper) + "\n" + elk.makeStr("</ul>", indent)
+})
+
+elk.addTemplateFunction("each", function (indent, args) {
+  return map(indent, args[1], args[0].eval(indent), (x, f, i) => f.gen(indent))
 })
 
 // Returns the node if the first argument is true
