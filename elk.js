@@ -303,4 +303,4 @@ exp(compileFiles)
 
 require("./functions.js")
 var nodes = require("./nodes.js")
-//if(window) window.elk = module.exports
+if(window) window.elk = module.exports
