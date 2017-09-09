@@ -21,8 +21,6 @@ var compileResult = elk.compileFiles(files, out, data)
 Object.keys(compileResult).forEach(function (key) {
     var result = compileResult[key]
     if(result.errored === true) {
-        console.log(key)
-        console.log(result.errData)
-        console.log("\n")
+        console.log(key + ": " + result.errData)
     }
 })
