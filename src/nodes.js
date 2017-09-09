@@ -115,6 +115,10 @@ class TemplateVar extends TemplateExpr {
     return elk.makeStr(this.eval(indent), indent)
   }
 
+  exists() {
+    return elk.dataExistsInContext(this.varArray)
+  }
+
   eval(indent) {
     return elk.getDataFromContext(this.varArray)
   }
