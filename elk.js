@@ -303,4 +303,8 @@ exp(compileFiles)
 
 require("./functions.js")
 var nodes = require("./nodes.js")
-if(window) window.elk = module.exports
+try {
+  if (window) window.elk = module.exports
+} catch (e) {
+  // Catch window reference error
+}
