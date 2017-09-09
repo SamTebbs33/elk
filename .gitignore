@@ -34,3 +34,6 @@ tmp
 
 # OS
 .DS_Store
+
+# Build
+build
