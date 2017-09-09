@@ -31,3 +31,6 @@ tmp
 
 # IDE
 .idea/
+
+# Build
+build
