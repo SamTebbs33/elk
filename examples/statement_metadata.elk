@@ -1,4 +1,4 @@
 html {
     head: style: ".blue { color: blue; } #content { background-color: red }"
-    body: "Some blue text with a red background".blue #content [blue: "true"]
+    body: "Some blue text with a red background".blue #content [blue = "true"]
 }

@@ -125,6 +125,7 @@ var hash = token(P.string("#"))
 var clss = dot.then(identifier)
 var id = hash.then(identifier)
 var colon = token(P.string(":"))
+var equals = token(P.string("="))
 var str = token(P.regexp(/"((?:\\.|.)*?)"/, 1)).map(a => new nodes.StringNode(interpretEscapes(a)))
 var bracketl = token(P.string("["))
 var bracketr = token(P.string("]"))
@@ -144,7 +145,7 @@ var statement = P.lazy(function() {
     return stmt
   })
 })
-var attribute = P.seqMap(tag_identifier, colon, statement, function(name, c, s) {
+var attribute = P.seqMap(tag_identifier, equals, statement, function(name, c, s) {
   return new nodes.Attribute(name, s)
 })
 var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr).map(a => new nodes.Attributes(a))
