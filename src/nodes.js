@@ -78,7 +78,7 @@ class Attributes extends Node {
   }
 
   add(name, val) {
-    this.attrs.push(Attribute(name, val))
+    this.attrs.push(new Attribute(name, val))
   }
 
   gen(indent) {
