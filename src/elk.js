@@ -148,7 +148,12 @@ var statement = P.lazy(function() {
     return stmt
   })
 })
-var href = at.then(statement)
+var statementNoMetadata = P.lazy(function() {
+  return P.seqMap(P.alt(str, template_expr, tag), function (stmt) {
+    return stmt
+  })
+})
+var href = at.then(statementNoMetadata)
 var attribute = P.seqMap(tag_identifier, equals, statement, function(name, c, s) {
   return new nodes.Attribute(name, s)
 })
