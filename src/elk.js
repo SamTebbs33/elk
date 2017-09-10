@@ -60,7 +60,7 @@ function getTemplateFunction(name) {
 exp(getTemplateFunction)
 
 function pushDataContext(context) {
-  templateDataStack.push(context)
+  templateDataStack.unshift(context)
 }
 exp(pushDataContext)
 
@@ -77,8 +77,9 @@ exp(peekDataContext)
 function getDataFromContext(varArray, throwException) {
   if(throwException === undefined) throwException = true
   var dataStack = templateDataStack.reverse()
+  var obj;
   for(var i in dataStack) {
-    var obj = dataStack[i]
+    obj = dataStack[i]
     var found = true
     for(var i in varArray) {
       var varName = varArray[i]
@@ -88,8 +89,10 @@ function getDataFromContext(varArray, throwException) {
         break
       }
     }
-    if(found) return obj
+    if(found) break
   }
+  templateDataStack.reverse()
+  if(found) return obj
   if(throwException) throw new ElkError("Undefined variable '" + varArray.join(".") + "'")
   return undefined
 }
