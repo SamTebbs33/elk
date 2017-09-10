@@ -4,6 +4,8 @@
 
 var elk = require("./elk.js")
 
+var hrefTags = ["a", "link"]
+
 function exp(val, name) {
   if(!name) name = val.name
   module.exports[name] = val
@@ -207,7 +209,7 @@ class Metadata extends Node {
   onTag(tag) {
     if(this.href) {
       var hrefAttribute = "src"
-      if(tag.tag == "a") hrefAttribute = "href"
+      if(hrefTags.includes(tag.tag)) hrefAttribute = "href"
       if (this.attrs) this.attrs.add(hrefAttribute, this.href)
       else this.attrs = new Attributes([new Attribute(hrefAttribute, this.href)])
     }
