@@ -65,7 +65,7 @@ function pushDataContext(context) {
 exp(pushDataContext)
 
 function popDataContext() {
-  return templateDataStack.pop()
+  return templateDataStack.shift()
 }
 exp(popDataContext)
 
