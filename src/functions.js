@@ -2,6 +2,7 @@
  * Created by samtebbs on 28/09/2016.
  */
 var elk = require("./elk.js")
+var nodes = require("./nodes.js")
 var fs = require("fs")
 
 function map(indent, format, array, mapper) {
