@@ -276,22 +276,23 @@ exp(Metadata)
 
 class Tag extends Statement {
 
-  constructor(tag, m, block) {
+  constructor(tag, m, block, generatedBlock) {
     super()
     this.tag = tag
     this.metadata = m
     this.block = block
+    this.generatedBlock = generatedBlock
     if(this.metadata) this.metadata.onTag(this)
   }
 
   gen(indent) {
     var hasBlock = this.block !== null
     var headerStr = "<" + this.tag + this.metadata.gen(0) + ">"
-    var blockIsSingle = hasBlock && (this.block instanceof StringNode || this.block instanceof TemplateVar)
-    var bodyStr = hasBlock ? this.block.gen(blockIsSingle ? 0 : indent + 1) : ""
+    var blockIsSingle = this.generatedBlock || (hasBlock && (this.block instanceof StringNode || this.block instanceof TemplateVar))
+    var bodyStr = this.generatedBlock ? this.generatedBlock : (hasBlock ? this.block.gen(blockIsSingle ? 0 : indent + 1) : "")
     var footerStr = elk.makeStr("</" + this.tag + ">", blockIsSingle ? 0 : indent)
     var bodySeparator = blockIsSingle ? "" : "\n"
-    return elk.makeStr(headerStr , indent) + (hasBlock ? (bodySeparator + bodyStr + bodySeparator + footerStr) : ("</" + this.tag + ">"))
+    return elk.makeStr(headerStr , indent) + (bodyStr !== "" ? (bodySeparator + bodyStr + bodySeparator + footerStr) : ("</" + this.tag + ">"))
   }
 
 }
