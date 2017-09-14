@@ -215,6 +215,17 @@ class Metadata extends Node {
     }
   }
 
+  merge(m) {
+    if (!m) return
+    this.attrs.merge(m.attrs)
+    for(var i in m.classes) {
+      var cls = m.classes[i]
+      this.classes.push(cls)
+    }
+    if(m.href) this.href = m.href
+    if(m.id) this.id = m.id
+  }
+
   gen(indent) {
     var classStr = this.classes.length > 0 ? " class='" + this.classes.join(" ") + "'" : ""
     var idStr = this.id ? " id='" + this.id + "'" : ""
