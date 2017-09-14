@@ -34,7 +34,7 @@ elk.addTemplateFunction("if", function (indent, args) {
 })
 
 elk.addTemplateFunction("js", function (indent, args) {
-  var script = args[0].gen()
+  var script = args[0].gen(0)
   return new Function(script)()
 })
 
