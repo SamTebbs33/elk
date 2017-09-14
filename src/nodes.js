@@ -35,13 +35,35 @@ class Statement extends Node {
 }
 exp(Statement)
 
-class StringNode extends Statement {
+class TemplateExpr extends Statement {
+
+  gen(indent) {
+    var evalResult = this.eval(indent)
+    if(evalResult instanceof Statements) return evalResult.gen(indent)
+    else if(elk.isString(evalResult)) return evalResult
+    if(evalResult instanceof Statement) {
+      if(!evalResult.metadata) evalResult.metadata = this.metadata
+      else evalResult.metadata.merge(this.metadata)
+      if(evalResult instanceof Tag && evalResult.metadata) evalResult.metadata.onTag(evalResult)
+    }
+    if(evalResult instanceof Node) return evalResult.gen(indent)
+    else return this.wrapMetadata(indent, evalResult)
+  }
+
+  eval(indent) {
+    throw "Unimplemented"
+  }
+
+}
+exp(TemplateExpr)
+
+class StringNode extends TemplateExpr {
   constructor(str) {
     super()
     this.str = str
   }
 
-  gen(indent) {
+  eval(indent) {
     var s = this.str.replace(/.*?\$\(([a-z_](?:\.|[a-z_]|[0-9])*)\)/g, function(match) {
       var index = match.indexOf("$(")
       var prefix = match.substr(0, index)
@@ -49,7 +71,7 @@ class StringNode extends Statement {
       var varArray = varName.split(".")
       return prefix + elk.getDataFromContext(varArray)
     })
-    return elk.makeStr(this.wrapMetadata(0, s), indent)
+    return elk.makeStr(s, indent)
   }
 
 }
@@ -93,18 +115,33 @@ class Attributes extends Node {
 }
 exp(Attributes)
 
-class TemplateExpr extends Statement {
+class TemplateMatchCase {
+  constructor(e, b) {
+    this.expr = e
+    this.block = b
+  }
+}
+exp(TemplateMatchCase)
 
-  gen(indent) {
-    return elk.makeStr(this.wrapMetadata(0, this.eval(indent)), indent)
+class TemplateMatch extends TemplateExpr {
+  constructor(e, b) {
+    super()
+    this.expr = e;
+    this.block = b
   }
 
   eval(indent) {
-    throw "Unimplemented"
+    var exprResult = this.expr.eval(0)
+    for (var i in this.block) {
+      var c = this.block[i]
+      var caseResult = c.expr.eval(0)
+      if(caseResult == exprResult) return c.block.gen(indent)
+    }
+    return " "
   }
 
 }
-exp(TemplateExpr)
+exp(TemplateMatch)
 
 class TemplateVar extends TemplateExpr {
 

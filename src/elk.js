@@ -142,6 +142,8 @@ var keyw_for = token(P.string("for"))
 var keyw_in = token(P.string("in"))
 var keyw_if = token(P.string("if"))
 var keyw_else = token(P.string("else"))
+var keyw_match = token(P.string("match"))
+var keyw_case = token(P.string("case"))
 var statement = P.lazy(function() {
   return P.seqMap(P.alt(str, template_expr, tag), optional(metadata), function (stmt, m) {
     if(stmt.metadata === null) stmt.metadata = m
@@ -161,17 +163,26 @@ var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr).map(a 
 var metadata = P.seqMap(clss.atLeast(0), optional(id), optional(href), optional(attributes), function (c, i, h, a) {
   return new nodes.Metadata(c, i, h, a)
 })
+var statements = statement.atLeast(0).map(a => new nodes.Statements(a))
+var bracedBlock = surround(bracel, statements, bracer)
 var block = P.lazy(function() {
   return P.alt(colon.then(statement), bracedBlock)
 })
 var tag = P.seqMap(tag_identifier, optional(metadata), optional(block), function (name, m, block) {
   return new nodes.Tag(name, m, block)
 })
-var template_expr = P.lazy(function () { return P.alt(template_loop, template_if, template_func_call, template_var) })
+var template_expr = P.lazy(function () { return P.alt(str, template_loop, template_if, template_func_call, template_var, template_match) })
 var template_var = dollar_sign.then(P.sepBy1(identifier, dot)).map(a => new nodes.TemplateVar(a))
 var func_call_args = P.sepBy(statement, comma)
 var template_func_call = P.seqMap(identifier, parenl, func_call_args, parenr, function(id, p1, args, p2) {
   return new nodes.TemplateFuncCall(id, args)
+})
+var matchCase = P.seqMap(keyw_case, template_expr, block, function (k, e, b) {
+  return new nodes.TemplateMatchCase(e, b)
+})
+var matchBlock = surround(bracel, matchCase.atLeast(0), bracer)
+var template_match = P.seqMap(keyw_match, template_expr, matchBlock, function (k, e, b) {
+  return new nodes.TemplateMatch(e, b)
 })
 var template_loop = keyw_for.then(P.seqMap(tag_identifier, keyw_in, template_expr, block, function (id, keyw, expr, block) {
   return new nodes.TemplateLoop(id, expr, block)
@@ -180,8 +191,6 @@ var template_else = dollar_sign.then(keyw_else.then(block)).map(b => new nodes.T
 var template_if = P.lazy(function(){return keyw_if.then(P.seqMap(template_expr, block,  optional(P.alt(keyw_else.then(template_if), template_else)), function(expr, block, e) {
   return new nodes.TemplateIf(expr, block, e)
 }))})
-var statements = statement.atLeast(0).map(a => new nodes.Statements(a))
-var bracedBlock = surround(bracel, statements, bracer)
 
 var indentString = "\t"
 
