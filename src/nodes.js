@@ -64,7 +64,7 @@ class Attribute extends Node {
   }
 
   gen(indent) {
-    return this.attrName + "=\"" + this.val.gen(0) + "\""
+    return this.attrName + (this.val ? "=\"" + this.val.gen(0) + "\"" : "")
   }
 
 }

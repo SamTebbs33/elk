@@ -154,7 +154,7 @@ var statementNoMetadata = P.lazy(function() {
   })
 })
 var href = at.then(statementNoMetadata)
-var attribute = P.seqMap(tag_identifier, equals, statement, function(name, c, s) {
+var attribute = P.seqMap(tag_identifier, optional(equals.then(statement)), function(name, s) {
   return new nodes.Attribute(name, s)
 })
 var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr).map(a => new nodes.Attributes(a))
