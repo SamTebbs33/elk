@@ -192,16 +192,17 @@ class TemplateLoop extends TemplateExpr {
 
   gen(indent) {
     var array = this.expr.eval(indent)
-    var block = this.block
     if(elk.dataExistsInContext(this.varName)) throw new elk.ElkError("Variable '" + this.varName + "' is already defined")
     else {
       var resultArray = []
       for(var i in array) {
         var elem = array[i]
-        elk.setDataInContext(this.varName, elem)
-        resultArray.push(block.gen(indent))
+        var obj = {}
+        obj[this.varName] = elem
+        elk.pushDataContext(obj)
+        resultArray.push(this.block.gen(indent))
+        elk.popDataContext()
       }
-      elk.removeDataFromContext(this.varName)
       return resultArray.join("\n")
     }
   }
