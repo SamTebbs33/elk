@@ -18,20 +18,45 @@ function map(indent, format, array, mapper) {
   return str
 }
 
+function concat(indent, srcArray, mapVar, unique) {
+  var array = []
+  for (var i in srcArray) {
+    var item = srcArray[i]
+    elk.pushDataContext({_item: item})
+    var stuff = mapVar.eval(indent).slice()
+    elk.popDataContext()
+    if(elk.isArray(stuff)) for (var j in stuff) if(!(unique && array.includes(stuff[j]))) array.push(stuff[j])
+    else if(!(unique && array.includes(stuff))) stuff.push(stuff)
+  }
+  return array
+}
+
+elk.addTemplateFunction("exists", function (indent, args) {
+  return args[0].exists() ? true : false
+})
+
+elk.addTemplateFunction("map", function (indent, args) {
+  var array = []
+  var srcArray = args[0].eval(indent)
+  for (var i in srcArray) {
+    elk.pushDataContext({_item: srcArray[i]})
+    array.push(args[1].eval(indent))
+    elk.popDataContext()
+  }
+  return array
+})
+
+elk.addTemplateFunction("concat", function (indent, args) {
+  return concat(indent, args[0].eval(indent), args[1], false)
+})
+
+elk.addTemplateFunction("concat_unique", function (indent, args) {
+  return concat(indent, args[0].eval(indent), args[1], true)
+})
+
 elk.addTemplateFunction("list", function (indent, args) {
-  var str = "<ul>"
-  var mapper = (x, f, i) => "\n" + elk.makeStr("<li>", i + 1) + (f.isSimple() ? "" : "\n") + f.gen(i) + (f.isSimple() ? "" : "\n") + elk.makeStr("</li>", i)
-  return "<ul>" + map(indent, args[1], args[0].eval(indent), mapper) + "\n" + elk.makeStr("</ul>", indent)
-})
-
-elk.addTemplateFunction("each", function (indent, args) {
-  return map(indent, args[1], args[0].eval(indent), (x, f, i) => f.gen(indent))
-})
-
-// Returns the node if the first argument is true
-elk.addTemplateFunction("if", function (indent, args) {
-  if (args[0].exists() && args[0].gen(indent) == "true") return args[1].gen(indent);
-  return args.length > 2 ? args[2].gen(indent) : " "
+  var mapper = (x, f, i) => "\n" + elk.makeStr("<li>", i) + (f.isSimple() ? "" : "\n") + f.gen(i + 1) + (f.isSimple() ? "" : "\n") + elk.makeStr("</li>", i)
+  return new nodes.Tag("ul", null, null, map(indent, args[1], args[0].eval(indent), mapper))
 })
 
 elk.addTemplateFunction("js", function (indent, args) {
