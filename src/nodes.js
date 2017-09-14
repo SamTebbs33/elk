@@ -150,10 +150,6 @@ class TemplateVar extends TemplateExpr {
     this.varArray = varArray
   }
 
-  gen(indent) {
-    return elk.makeStr(this.eval(indent), indent)
-  }
-
   exists() {
     return elk.dataExistsInContext(this.varArray)
   }
@@ -303,6 +299,10 @@ class Statements extends Node {
   constructor(stmtArr) {
     super()
     this.stmtArr = stmtArr
+  }
+
+  add(stmt) {
+    this.stmtArr.push(stmt)
   }
 
   gen(indent) {
