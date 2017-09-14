@@ -200,7 +200,7 @@ class Metadata extends Node {
 
   constructor(c, i, h, a) {
     super()
-    this.clss = c
+    this.classes = c
     this.id = i
     this.attrs = a
     this.href = h
@@ -216,7 +216,7 @@ class Metadata extends Node {
   }
 
   gen(indent) {
-    var classStr = this.clss ? " class='" + this.clss + "'" : ""
+    var classStr = this.classes.length > 0 ? " class='" + this.classes.join(" ") + "'" : ""
     var idStr = this.id ? " id='" + this.id + "'" : ""
     var attrsStr = this.attrs ? this.attrs.gen(0) : ""
     return classStr + idStr + attrsStr

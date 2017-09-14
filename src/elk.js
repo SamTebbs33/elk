@@ -158,7 +158,7 @@ var attribute = P.seqMap(tag_identifier, optional(equals.then(statement)), funct
   return new nodes.Attribute(name, s)
 })
 var attributes = surround(bracketl, P.sepBy1(attribute, comma), bracketr).map(a => new nodes.Attributes(a))
-var metadata = P.seqMap(optional(clss), optional(id), optional(href), optional(attributes), function (c, i, h, a) {
+var metadata = P.seqMap(clss.atLeast(0), optional(id), optional(href), optional(attributes), function (c, i, h, a) {
   return new nodes.Metadata(c, i, h, a)
 })
 var block = P.lazy(function() {
