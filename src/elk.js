@@ -144,6 +144,7 @@ var keyw_if = token(P.string("if"))
 var keyw_else = token(P.string("else"))
 var keyw_match = token(P.string("match"))
 var keyw_case = token(P.string("case"))
+var keyw_default = token(P.string("default"))
 var statement = P.lazy(function() {
   return P.seqMap(P.alt(str, template_expr, tag), optional(metadata), function (stmt, m) {
     if(stmt.metadata === null) stmt.metadata = m
@@ -180,14 +181,17 @@ var template_func_call = P.seqMap(identifier, parenl, func_call_args, parenr, fu
 var matchCase = P.seqMap(keyw_case, template_expr, block, function (k, e, b) {
   return new nodes.TemplateMatchCase(e, b)
 })
-var matchBlock = surround(bracel, matchCase.atLeast(0), bracer)
+var matchCaseDefault = keyw_default.then(block)
+var matchBlock = P.seqMap(bracel, matchCase.atLeast(0), optional(matchCaseDefault), bracer, function (bl, c, d, br) {
+  return new nodes.MatchBlock(c, d)
+})
 var template_match = P.seqMap(keyw_match, template_expr, matchBlock, function (k, e, b) {
   return new nodes.TemplateMatch(e, b)
 })
 var template_loop = keyw_for.then(P.seqMap(tag_identifier, keyw_in, template_expr, block, function (id, keyw, expr, block) {
   return new nodes.TemplateLoop(id, expr, block)
 }))
-var template_else = dollar_sign.then(keyw_else.then(block)).map(b => new nodes.TemplateIf(null, b, null))
+var template_else = keyw_else.then(block).map(b => new nodes.TemplateIf(null, b, null))
 var template_if = P.lazy(function(){return keyw_if.then(P.seqMap(template_expr, block,  optional(P.alt(keyw_else.then(template_if), template_else)), function(expr, block, e) {
   return new nodes.TemplateIf(expr, block, e)
 }))})

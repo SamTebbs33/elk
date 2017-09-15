@@ -123,21 +123,34 @@ class TemplateMatchCase {
 }
 exp(TemplateMatchCase)
 
+class MatchBlock {
+  constructor(c, d) {
+    this.cases = c
+    this.default = d
+  }
+
+  gen(indent, exprResult) {
+    for (var i in this.cases) {
+      var c = this.cases[i]
+      var caseResult = c.expr.eval(0)
+      if(caseResult == exprResult) return c.block.gen(indent)
+    }
+    return this.default ? this.default.gen(indent) : " "
+  }
+
+}
+exp(MatchBlock)
+
 class TemplateMatch extends TemplateExpr {
   constructor(e, b) {
     super()
-    this.expr = e;
+    this.expr = e
     this.block = b
   }
 
   eval(indent) {
     var exprResult = this.expr.eval(0)
-    for (var i in this.block) {
-      var c = this.block[i]
-      var caseResult = c.expr.eval(0)
-      if(caseResult == exprResult) return c.block.gen(indent)
-    }
-    return " "
+    return this.block.gen(indent, exprResult)
   }
 
 }
