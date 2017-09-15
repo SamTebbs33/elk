@@ -185,19 +185,16 @@ class TemplateFuncCall extends TemplateExpr {
 
   eval(indent) {
     var func = elk.getTemplateFunction(this.funcName)
-    var template = elk.getTemplate(this.funcName)
-    if(!func && !template) throw new elk.ElkError("Undefined function or template '" + this.funcName + "'")
+    var template = elk.getTemplate(this.funcName, this.args.length)
+    if(!func && !template) throw new elk.ElkError("Undefined function or matching template '" + this.funcName + "'")
     if(func) return func(indent, this.args)
     else {
-      if(this.args.length !== template.params.length) throw new elk.ElkError("Incorrect number of arguments for template \'" + this.funcName + "\'")
-      else {
-        var dataObj = {}
-        for(var i in template.params) dataObj[template.params[i]] = this.args[i]
-        elk.pushDataContext(dataObj)
-        var str = template.block.gen(indent)
-        elk.popDataContext()
-        return str
-      }
+      var dataObj = {}
+      for(var i in template.params) dataObj[template.params[i]] = this.args[i]
+      elk.pushDataContext(dataObj)
+      var str = template.block.gen(indent)
+      elk.popDataContext()
+      return str
     }
     return " "
   }
@@ -355,7 +352,7 @@ class Template extends Node {
   }
 
   gen(indent) {
-    if(elk.templateExists(this.name) || elk.templateFunctionExists(this.name)) throw new elk.ElkError("Template or function with the name \'" + this.name + "\' already exists")
+    if(elk.templateExists(this.name, this.params.length) || elk.templateFunctionExists(this.name)) throw new elk.ElkError("Template or function with the name \'" + this.name + "\' already exists")
     else elk.addTemplate(this.name, this.params, this.block)
     return " "
   }

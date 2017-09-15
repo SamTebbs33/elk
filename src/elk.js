@@ -66,17 +66,18 @@ function templateFunctionExists(name) {
 exp(templateFunctionExists)
 
 function addTemplate(name, params, block) {
-  templates[name] = {params: params, block: block}
+  if(!templates[name]) templates[name] = {}
+  templates[name][params.length] = {params: params, block: block}
 }
 exp(addTemplate)
 
-function getTemplate(name) {
-  return templates[name]
+function getTemplate(name, numParams) {
+  return templates[name] ? templates[name][numParams] : null
 }
 exp(getTemplate)
 
-function templateExists(name) {
-  return getTemplate(name) ? true : false
+function templateExists(name, numParams) {
+  return getTemplate(name, numParams) ? true : false
 }
 exp(templateExists)
 
