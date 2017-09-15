@@ -60,6 +60,11 @@ function getTemplateFunction(name) {
 }
 exp(getTemplateFunction)
 
+function templateFunctionExists(name) {
+  return getTemplateFunction(name) ? true : false
+}
+exp(templateFunctionExists)
+
 function addTemplate(name, params, block) {
   templates[name] = {params: params, block: block}
 }
