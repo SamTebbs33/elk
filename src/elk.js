@@ -48,6 +48,7 @@ function type(p, id) {
 
 var templateDataStack = []
 var templateFunctions = {}
+var templates = {}
 
 function addTemplateFunction(name, func) {
   templateFunctions[name] = func
@@ -58,6 +59,21 @@ function getTemplateFunction(name) {
   return templateFunctions[name]
 }
 exp(getTemplateFunction)
+
+function addTemplate(name, params, block) {
+  templates[name] = {params: params, block: block}
+}
+exp(addTemplate)
+
+function getTemplate(name) {
+  return templates[name]
+}
+exp(getTemplate)
+
+function templateExists(name) {
+  return getTemplate(name) ? true : false
+}
+exp(templateExists)
 
 function pushDataContext(context) {
   templateDataStack.unshift(context)
@@ -145,8 +161,10 @@ var keyw_else = token(P.string("else"))
 var keyw_match = token(P.string("match"))
 var keyw_case = token(P.string("case"))
 var keyw_default = token(P.string("default"))
+var keyw_template = token(P.string("template"))
+
 var statement = P.lazy(function() {
-  return P.seqMap(P.alt(str, template_expr, tag), optional(metadata), function (stmt, m) {
+  return P.seqMap(P.alt(template, str, template_expr, tag), optional(metadata), function (stmt, m) {
     if(stmt.metadata === null) stmt.metadata = m
     return stmt
   })
@@ -195,6 +213,10 @@ var template_else = keyw_else.then(block).map(b => new nodes.TemplateIf(null, b,
 var template_if = P.lazy(function(){return keyw_if.then(P.seqMap(template_expr, block,  optional(P.alt(keyw_else.then(template_if), template_else)), function(expr, block, e) {
   return new nodes.TemplateIf(expr, block, e)
 }))})
+var template_params = optional(surround(parenl, P.sepBy(identifier, comma), parenr))
+var template = P.seqMap(keyw_template, identifier, template_params, block, function (k, i, p, b) {
+  return new nodes.Template(i, p, b)
+})
 
 var indentString = "\t"
 
