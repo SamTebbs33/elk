@@ -4,6 +4,7 @@
 var elk = require("./elk.js")
 var nodes = require("./nodes.js")
 var fs = require("fs")
+var moment = require("moment")
 
 function map(indent, format, array, mapper) {
   var str = ""
