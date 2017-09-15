@@ -233,9 +233,7 @@ class TemplateIf extends TemplateExpr {
     else {
       var val = this.expr.eval(indent)
       if(val === true) return this.block.gen(indent)
-      else if(this.else_stmt) {
-        return this.else_stmt.eval(indent)
-      }
+      else if(this.else_stmt) return this.else_stmt.eval(indent)
       else return ""
     }
   }
