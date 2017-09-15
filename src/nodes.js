@@ -275,7 +275,7 @@ class Metadata extends Node {
 
   merge(m) {
     if (!m) return
-    this.attrs.merge(m.attrs)
+    if(this.attrs) this.attrs.merge(m.attrs)
     for(var i in m.classes) {
       var cls = m.classes[i]
       this.classes.push(cls)
