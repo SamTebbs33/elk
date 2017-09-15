@@ -5,6 +5,7 @@ var elk = require("./elk.js")
 var nodes = require("./nodes.js")
 var fs = require("fs")
 var moment = require("moment")
+var request = require("sync-request")
 
 function map(indent, format, array, mapper) {
   var str = ""
@@ -42,6 +43,20 @@ elk.addTemplateFunction("not", function (indent, args) {
 
 elk.addTemplateFunction("or", function (indent, args) {
   return args[0].eval(0) || args[1].eval(0);
+})
+
+elk.addTemplateFunction("http_get", function (indent, args) {
+  var url = args[0].eval(0)
+  var options = args[1] ? args[1].eval(0) : {}
+  return request("GET", url, options).getBody()
+})
+
+elk.addTemplateFunction("http_post", function (indent, args) {
+  var url = args[0].eval(0)
+  var options = args[1] ? args[1].eval(0) : {}
+  if(args[1]) var data = args[2] ? args[2].eval(0) : null
+  if(data) options.body = data
+  return request("POST", url, options).getBody()
 })
 
 elk.addTemplateFunction("time", function (indent, args) {
