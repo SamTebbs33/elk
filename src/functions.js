@@ -108,6 +108,11 @@ elk.addTemplateFunction("list", function (indent, args) {
   return new nodes.Tag("ul", null, null, map(indent, args[1], args[0].eval(indent), mapper))
 })
 
+elk.addTemplateFunction("olist", function (indent, args) {
+  var mapper = (x, f, i) => "\n" + elk.makeStr("<li>", i) + (f.isSimple() ? "" : "\n") + f.gen(i + 1) + (f.isSimple() ? "" : "\n") + elk.makeStr("</li>", i)
+  return new nodes.Tag("ol", null, null, map(indent, args[1], args[0].eval(indent), mapper))
+})
+
 elk.addTemplateFunction("js", function (indent, args) {
   var script = args[0].gen(0)
   return new Function(script)()
