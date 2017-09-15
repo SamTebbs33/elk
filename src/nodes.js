@@ -5,6 +5,8 @@
 var elk = require("./elk.js")
 
 var hrefTags = ["a", "link"]
+var voidTags = ["area", "base", "br", "col", "embed", "hr", "img", "input",
+  "link", "meta", "param", "source", "track", "wbr"]
 
 function exp(val, name) {
   if(!name) name = val.name
@@ -307,12 +309,18 @@ class Tag extends Statement {
 
   gen(indent) {
     var hasBlock = this.block !== null
+    var isVoidTag = voidTags.includes(this.tag)
     var headerStr = "<" + this.tag + this.metadata.gen(0) + ">"
     var blockIsSingle = this.generatedBlock || (hasBlock && (this.block instanceof StringNode || this.block instanceof TemplateVar))
     var bodyStr = this.generatedBlock ? this.generatedBlock : (hasBlock ? this.block.gen(blockIsSingle ? 0 : indent + 1) : "")
-    var footerStr = elk.makeStr("</" + this.tag + ">", blockIsSingle ? 0 : indent)
+    var hasBody = bodyStr !== ""
+    var needsClosingTag = hasBody || !isVoidTag
+    var footerStr = needsClosingTag ? elk.makeStr("</" + this.tag + ">", blockIsSingle || !hasBlock ? 0 : indent) : ""
     var bodySeparator = blockIsSingle ? "" : "\n"
-    return elk.makeStr(headerStr , indent) + (bodyStr !== "" ? (bodySeparator + bodyStr + bodySeparator + footerStr) : ("</" + this.tag + ">"))
+    var str = elk.makeStr(headerStr , indent)
+    if(hasBody) str += bodySeparator + bodyStr + bodySeparator
+    str += footerStr
+    return str
   }
 
 }
