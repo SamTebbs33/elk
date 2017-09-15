@@ -63,6 +63,23 @@ elk.addTemplateFunction("time", function (indent, args) {
   return moment().format(args[0].eval(0))
 })
 
+elk.addTemplateFunction("contains", function (indent, args) {
+  return args[0].eval(0).includes(args[1].eval(0))
+})
+
+elk.addTemplateFunction("filter", function (indent, args) {
+  var array = []
+  var srcArray = args[0].eval(0)
+  var filter = args[1]
+  for (var i in srcArray) {
+    var item = srcArray[i]
+    elk.pushDataContext({_item: item})
+    if(filter.eval(0)) array.push(item)
+    elk.popDataContext()
+  }
+  return array
+})
+
 elk.addTemplateFunction("exists", function (indent, args) {
   return args[0].exists() ? true : false
 })
