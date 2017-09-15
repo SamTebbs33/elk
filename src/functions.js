@@ -31,6 +31,10 @@ function concat(indent, srcArray, mapVar, unique) {
   return array
 }
 
+elk.addTemplateFunction("time", function (indent, args) {
+  return moment().format(args[0].eval(0))
+})
+
 elk.addTemplateFunction("exists", function (indent, args) {
   return args[0].exists() ? true : false
 })
