@@ -66,14 +66,14 @@ class StringNode extends TemplateExpr {
   }
 
   eval(indent) {
-    var s = this.str.replace(/[$][(]([a-z_](?:\.|[a-z_]|[0-9])*)\)/g, function(fullMatch, match1) {
+    var s = this.str.replace(/[$][(]([a-z_](?:\.|[a-z_]|[0-9])*)[)]/g, function(fullMatch, match1) {
       var varArray = match1.split(".")
       var val = elk.getDataFromContext(varArray)
       if(val instanceof TemplateExpr) val = val.eval(0)
       else if(val instanceof Node) val = val.gen(0)
       return val
     })
-    var s = this.str.replace(/[$][{]([^{}]+)[}]/g, function (fullMatch, match1) {
+    s = s.replace(/[$][{]([^{}]+)[}]/g, function (fullMatch, match1) {
       var result = elk.compile(match1)
       if(!result.errored) return result.data
       else return ""
