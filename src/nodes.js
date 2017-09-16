@@ -73,6 +73,11 @@ class StringNode extends TemplateExpr {
       else if(val instanceof Node) val = val.gen(0)
       return val
     })
+    var s = this.str.replace(/[$][{]([^{}]+)[}]/g, function (fullMatch, match1) {
+      var result = elk.compile(match1)
+      if(!result.errored) return result.data
+      else return ""
+    })
     if(s.endsWith(" ")) s = s.substring(0, s.length - 1) + "&nbsp;"
     if(s.startsWith(" ")) s = "&nbsp;" + s.substring(1, s.length)
     return elk.makeStr(s, indent)
