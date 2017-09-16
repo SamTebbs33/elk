@@ -33,6 +33,11 @@ function concat(indent, srcArray, mapVar, unique) {
   return array
 }
 
+elk.addTemplateFunction("debug", function (indent, args) {
+  console.log(JSON.stringify(args[0].gen(0)));
+  return " ";
+})
+
 elk.addTemplateFunction("and", function (indent, args) {
   return args[0].eval(0) && args[1].eval(0)
 })
