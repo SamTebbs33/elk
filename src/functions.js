@@ -65,7 +65,8 @@ elk.addTemplateFunction("http_post", function (indent, args) {
 })
 
 elk.addTemplateFunction("time", function (indent, args) {
-  return moment().format(args[0].eval(0))
+  var format = args[0] ? args[0].eval(0) : "D-MM-YY HH:mm"
+  return moment().format(format)
 })
 
 elk.addTemplateFunction("contains", function (indent, args) {
