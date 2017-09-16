@@ -71,8 +71,13 @@ class StringNode extends TemplateExpr {
       var prefix = match.substr(0, index)
       var varName = match.substring(index + 2, match.length - 1)
       var varArray = varName.split(".")
-      return prefix + elk.getDataFromContext(varArray)
+      var val = elk.getDataFromContext(varArray)
+      if(val instanceof TemplateExpr) val = val.eval(0)
+      else if(val instanceof Node) val = val.gen(0)
+      return prefix + val
     })
+    if(s.endsWith(" ")) s = s.substring(0, s.length - 1) + "&nbsp;"
+    if(s.startsWith(" ")) s = "&nbsp;" + s.substring(1, s.length)
     return elk.makeStr(s, indent)
   }
 
