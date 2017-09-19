@@ -77,7 +77,7 @@ class StringNode extends TemplateExpr {
     s = s.replace(/[$][{]([^{}]+)[}]/g, function (fullMatch, match1) {
       var result = elk.compile(match1)
       if(!result.errored) return result.data
-      else return ""
+      else throw new elk.ElkError(result.errData)
     })
     if(s.endsWith(" ")) s = s.substring(0, s.length - 1) + "&nbsp;"
     if(s.startsWith(" ")) s = "&nbsp;" + s.substring(1, s.length)
