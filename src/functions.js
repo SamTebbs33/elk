@@ -140,6 +140,6 @@ elk.addTemplateFunction("pages", function (indent, args) {
 elk.addTemplateFunction("include", function (indent, args) {
   var path = args[0].gen(0) + elk.fileExtension
   var content = fs.readFileSync(path).toString()
-  var compiled = elk.compile(content, elk.getTemplateDataRoot(), 0)
-  return compiled.data ? compiled.data : ""
+  var parsed = elk.parse(content)
+  return parsed.errored ? new nodes.Node() : parsed.data
 })
