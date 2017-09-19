@@ -19,6 +19,7 @@ class Node {
   }
   gen(indent){ return "" }
 }
+exp(Node)
 
 class Statement extends Node {
   constructor() {
