@@ -1,10 +1,10 @@
-<html>
-	<head>
-		<title>Try Elk</title>
-		<script src="https://use.fontawesome.com/9e87919f3d.js"></script>
-		<link rel="stylesheet" href="lib/codemirror.css">
-		<style>
-			
+html {
+  head {
+    title: "Try Elk"
+    script@"https://use.fontawesome.com/9e87919f3d.js"
+    link@"lib/codemirror.css" [rel = "stylesheet"]
+    style {
+      "
       body {
         width: 100%;
         height: 100%;
@@ -58,27 +58,27 @@
       .flush {
         margin: 0;
       }
-     &nbsp;
-		</style>
-	</head>
-	<body class='flush'>
-		<div id='container'>
-			<section class='left' id='elk-area'>
-				<div class='text top' id='elk-text'></div>
-				<div class='bottom'>
-					<div class='text top' id='json-text'></div>
-					<div class='text bottom' id='css-text'></div>
-				</div>
-			</section>
-			<section class='right' id='html-area'>
-				<i class='fa fa-exclamation-circle error' id='error' aria-hidden="true"></i>
-				<section class='text fill' id='html-text'></section>
-			</section>
-		</div>
-		<script src="lib/codemirror.js"></script>
-		<script src="mode/javascript/javascript.js"></script>
-		<script src="mode/css/css.js"></script>
-		<script src="lib/elk-bundle.js"></script>
-		<script src="js/script.js"></script>
-	</body>
-</html>
+      "
+    }
+  }
+  body .flush {
+    div #container {
+      section .left #elk-area {
+        div .text.top #elk-text
+        div .bottom {
+          div .text.top #json-text
+          div .text.bottom #css-text
+        }
+      }
+      section .right #html-area {
+        i .fa.fa-exclamation-circle.error #error [aria-hidden="true"]
+        section .text.fill #html-text
+      }
+    }
+    script@"lib/codemirror.js"
+    script@"mode/javascript/javascript.js"
+    script@"mode/css/css.js"
+    script@"lib/elk-bundle.js"
+    script@"js/script.js"
+  }
+}
