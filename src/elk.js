@@ -297,24 +297,27 @@ function parse(content) {
 }
 exp(parse)
 
-function convert(parseTree, indent) {
+function generate(parseTree, indent, data) {
   if(!indent) indent = 0
+  if(!data) data = {}
+  pushDataContext(data)
   try {
-    return makeResult(false, null, parseTree.gen(indent))
+    var res = makeResult(false, null, parseTree.gen(indent))
+    popDataContext()
+    return res
   } catch (err) {
+    popDataContext()
     if(err instanceof ElkError) return makeResult(true, err.msg, null)
     else throw err
   }
 }
-exp(convert)
+exp(generate)
 
 function compile(content, data, indent) {
   if(!indent) indent = 0
   if(!data) data = {}
-  pushDataContext(data)
   var result = parse(content)
-  if(!result.errored) result = convert(result.data, indent);
-  popDataContext()
+  if(!result.errored) result = generate(result.data, indent, data);
   return result
 }
 exp(compile)
