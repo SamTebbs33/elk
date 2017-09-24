@@ -261,6 +261,19 @@ class TemplateIf extends TemplateExpr {
 }
 exp(TemplateIf)
 
+class JsonArray extends TemplateExpr {
+  constructor(a) {
+    super()
+    this.array = a
+  }
+
+  eval(indent) {
+    return this.array.map(v => v.eval(0))
+  }
+
+}
+exp(JsonArray)
+
 class Metadata extends Node {
 
   constructor(c, i, h, a) {

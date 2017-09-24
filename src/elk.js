@@ -199,8 +199,9 @@ var block = P.lazy(function() {
 var tag = P.seqMap(tag_identifier, optional(metadata), optional(block), function (name, m, block) {
   return new nodes.Tag(name, m, block)
 })
-var template_expr = P.lazy(function () { return P.alt(str, template_loop, template_if, template_func_call, template_var, template_match) })
+var template_expr = P.lazy(function () { return P.alt(json_array, str, template_loop, template_if, template_func_call, template_var, template_match) })
 var template_var = dollar_sign.then(P.sepBy1(identifier, dot)).map(a => new nodes.TemplateVar(a))
+var json_array = surround(bracketl, P.sepBy1(template_expr, comma), bracketr).map(a => new nodes.JsonArray(a))
 var func_call_args = P.sepBy(statement, comma)
 var template_func_call = P.seqMap(identifier, parenl, func_call_args, parenr, function(id, p1, args, p2) {
   return new nodes.TemplateFuncCall(id, args)
