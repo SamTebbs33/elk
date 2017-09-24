@@ -367,3 +367,29 @@ class Template extends Node {
 
 }
 exp(Template)
+
+class DataAssignment {
+  constructor(id, e) {
+    this.id = id
+    this.expr = e
+  }
+}
+exp(DataAssignment)
+
+class DataDefinition extends Node {
+  constructor(assignments) {
+    super()
+    this.assignments = assignments
+  }
+
+  gen(indent) {
+    var obj = {}
+    for(var i in this.assignments) {
+      var assignment = this.assignments[i]
+      obj[assignment.id] = assignment.expr.eval(0)
+    }
+    elk.pushDataContext(obj)
+    return " "
+  }
+}
+exp(DataDefinition)

@@ -170,9 +170,10 @@ var keyw_match = token(P.string("match"))
 var keyw_case = token(P.string("case"))
 var keyw_default = token(P.string("default"))
 var keyw_template = token(P.string("template"))
+var keyw_data = token(P.string("data"))
 
 var statement = P.lazy(function() {
-  return P.seqMap(P.alt(template, str, template_expr, tag), optional(metadata), function (stmt, m) {
+  return P.seqMap(P.alt(data_def, template, str, template_expr, tag), optional(metadata), function (stmt, m) {
     if(stmt.metadata === null) stmt.metadata = m
     return stmt
   })
@@ -225,6 +226,12 @@ var template_params = optional(surround(parenl, P.sepBy(identifier, comma), pare
 var template = P.seqMap(keyw_template, identifier, template_params, block, function (k, i, p, b) {
   return new nodes.Template(i, p, b)
 })
+var data_assignment = P.seqMap(identifier, equals, template_expr, function (id, e, expr) {
+  return new nodes.DataAssignment(id, expr)
+})
+var data_assignments = data_assignment.atLeast(0)
+var data_block = surround(bracel, data_assignments, bracer)
+var data_def = keyw_data.then(data_block).map(b => new nodes.DataDefinition(b))
 
 var indentString = "\t"
 
