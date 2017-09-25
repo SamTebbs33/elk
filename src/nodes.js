@@ -367,7 +367,7 @@ class Tag extends Statement {
   gen(indent) {
     var hasBlock = this.block !== null
     var isVoidTag = voidTags.includes(this.tag)
-    var headerStr = "<" + this.tag + this.metadata.gen(0) + ">"
+    var headerStr = "<" + this.tag + (this.metadata ? this.metadata.gen(0) : "") + ">"
     var blockIsSingle = this.generatedBlock || (hasBlock && (this.block instanceof StringNode || this.block instanceof TemplateVar))
     var bodyStr = this.generatedBlock ? this.generatedBlock : (hasBlock ? this.block.gen(blockIsSingle ? 0 : indent + 1) : "")
     var hasBody = bodyStr !== ""
