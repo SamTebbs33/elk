@@ -33,6 +33,18 @@ function concat(indent, srcArray, mapVar, unique) {
   return array
 }
 
+function camelise(s) {
+  return s.trim()
+    .replace(/[^A-Za-z]/g,' ') /* clean up non-letter characters */
+    .replace(/(.)/g, function(a, l) { return l.toLowerCase(); })
+    .replace(/(\s.)/g, function(a, l) { return l.toUpperCase(); })
+    .replace(/[^A-Za-z\u00C0-\u00ff]/g,'')
+}
+
+elk.addTemplateFunction("camelise", function (indent, args) {
+  return args[0].eval(0).map(camelise)
+})
+
 elk.addTemplateFunction("debug", function (indent, args) {
   console.log(JSON.stringify(args[0].gen(0)));
   return " ";
