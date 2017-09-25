@@ -87,6 +87,19 @@ class StringNode extends TemplateExpr {
 }
 exp(StringNode)
 
+class IntegerNode extends TemplateExpr {
+  constructor(i) {
+    super()
+    this.value = i
+  }
+
+  eval(indent) {
+    return this.value
+  }
+
+}
+exp(IntegerNode)
+
 class Attribute extends Node {
 
   constructor(attrName, val) {
@@ -273,6 +286,32 @@ class JsonArray extends TemplateExpr {
 
 }
 exp(JsonArray)
+
+class JsonObject extends TemplateExpr {
+  constructor(defs) {
+    super()
+    this.fields = defs
+  }
+
+  eval(indent) {
+    var obj = {}
+    for(var i in this.fields) {
+      var field = this.fields[i]
+      obj[field.id] = field.expr.eval(0)
+    }
+    return obj
+  }
+
+}
+exp(JsonObject)
+
+class JsonField {
+  constructor(id, expr) {
+    this.id = id
+    this.expr = expr
+  }
+}
+exp(JsonField)
 
 class Metadata extends Node {
 
