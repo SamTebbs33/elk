@@ -45,6 +45,23 @@ elk.addTemplateFunction("camelise", function (indent, args) {
   return args[0].eval(0).map(camelise)
 })
 
+elk.addTemplateFunction("table", function (indent, args) {
+  var headers = args[0].eval(0)
+  var tableData = args[1].eval(0)
+  var keys = args[2] ? args[2].eval(0) :  headers.map(camelise)
+  var headerTag = new nodes.Tag("tr", null, new nodes.Statements(headers.map(s => new nodes.Tag("td", null, new nodes.StringNode(s)))))
+  var tableStmts = new nodes.Statements([headerTag])
+  for (var i in tableData) {
+    var rowData = tableData[i]
+    var rowTag = new nodes.Tag("tr", null, new nodes.Statements(keys.map(s => {
+      var value = rowData[s] ? rowData[s] : ""
+      return new nodes.Tag("td", null, new nodes.StringNode(value))
+    })))
+    tableStmts.add(rowTag)
+  }
+  return new nodes.Tag("table", null, tableStmts)
+})
+
 elk.addTemplateFunction("debug", function (indent, args) {
   console.log(JSON.stringify(args[0].gen(0)));
   return " ";
