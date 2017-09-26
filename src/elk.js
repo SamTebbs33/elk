@@ -158,6 +158,7 @@ var denary_integer = token(P.regexp(/-?[0-9]+/)).map(s => new nodes.IntegerNode(
 var binary_integer = token(P.regexp(/0b[01]+/)).map(s => new nodes.IntegerNode(parseInt(s, 2)))
 var hex_integer = token(P.regexp(/0x[a-f0-9A-F]+/)).map(s => new nodes.IntegerNode(parseInt(s, 16)))
 var octal_integer = token(P.regexp(/0o[0-7]+/)).map(s => new nodes.IntegerNode(parseInt(s, 8)))
+var float = token(P.regexp(/-?[0-9]*[.][0-9]+/)).map(s => new nodes.FloatNode(parseFloat(s)))
 var integer = P.alt(denary_integer, binary_integer, hex_integer, octal_integer)
 var bracketl = token(P.string("["))
 var bracketr = token(P.string("]"))
@@ -204,7 +205,7 @@ var block = P.lazy(function() {
 var tag = P.seqMap(tag_identifier, optional(metadata), optional(block), function (name, m, block) {
   return new nodes.Tag(name, m, block)
 })
-var template_expr = P.lazy(function () { return P.alt(integer, json_object, json_array, str, template_loop, template_if, template_func_call, template_var, template_match) })
+var template_expr = P.lazy(function () { return P.alt(float, integer, json_object, json_array, str, template_loop, template_if, template_func_call, template_var, template_match) })
 var template_var = dollar_sign.then(P.sepBy1(identifier, dot)).map(a => new nodes.TemplateVar(a))
 var json_array = surround(bracketl, P.sepBy1(template_expr, comma), bracketr).map(a => new nodes.JsonArray(a))
 var json_field = P.seqMap(identifier, colon, template_expr, function (i, c, e) {

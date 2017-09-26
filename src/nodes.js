@@ -100,6 +100,19 @@ class IntegerNode extends TemplateExpr {
 }
 exp(IntegerNode)
 
+class FloatNode extends TemplateExpr {
+  constructor(f) {
+    super()
+    this.value = f
+  }
+
+  eval(indent) {
+    return this.value
+  }
+
+}
+exp(FloatNode)
+
 class Attribute extends Node {
 
   constructor(attrName, val) {
