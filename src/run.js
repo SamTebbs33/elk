@@ -7,8 +7,7 @@ var args = require('minimist')(process.argv.slice(2));
 
 var files = args["_"]
 
-var out = args["o"]
-if(!out) out = "."
+var out = args["o"] || "."
 
 var dataFile = args["d"]
 var data = {}
