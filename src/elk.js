@@ -2,6 +2,7 @@ var P = require("parsimmon")
 var minimist = require('minimist')
 var fs = require("fs")
 var path = require("path")
+var mkdirp = require("mkdirp")
 
 var escapes = {
   b: '\b',
