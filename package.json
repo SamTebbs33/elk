@@ -2,8 +2,8 @@
   "name": "elk",
   "version": "1.0.0",
   "description": "Concise markup that compiles to HTML",
-  "main": "src/elk.js",
-  "bin": "src/run.js",
+  "main": "src2/elk.js",
+  "bin": "src2/run.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
