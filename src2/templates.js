@@ -1,4 +1,7 @@
-const common = require("./common.js");
+function exp(val, name) {
+    if (!name) name = val.name;
+    module.exports[name] = val;
+}
 
 const templateFunctions = {};
 const templates = {};
@@ -7,48 +10,48 @@ const templateDataStack = [];
 function addTemplateFunction(name, func) {
     templateFunctions[name] = func;
 }
-common.exp(addTemplateFunction);
+exp(addTemplateFunction);
 
 function getTemplateFunction(name) {
     return templateFunctions[name]
 }
-common.exp(getTemplateFunction);
+exp(getTemplateFunction);
 
 function templateFunctionExists(name) {
     return !!getTemplateFunction(name);
 }
-common.exp(templateFunctionExists);
+exp(templateFunctionExists);
 
 function addTemplate(name, params, block) {
     if (!templates[name]) templates[name] = {};
     templates[name][params.length] = {params: params, block: block}
 }
-common.exp(addTemplate);
+exp(addTemplate);
 
 function getTemplate(name, numParams) {
     return templates[name] ? templates[name][numParams] : null
 }
-common.exp(getTemplate);
+exp(getTemplate);
 
 function templateExists(name, numParams) {
     return !!getTemplate(name, numParams);
 }
-common.exp(templateExists);
+exp(templateExists);
 
 function pushDataContext(context) {
     templateDataStack.unshift(context)
 }
-common.exp(pushDataContext);
+exp(pushDataContext);
 
 function popDataContext() {
     return templateDataStack.shift()
 }
-common.exp(popDataContext);
+exp(popDataContext);
 
 function peekDataContext() {
     return templateDataStack[templateDataStack.length - 1]
 }
-common.exp(peekDataContext);
+exp(peekDataContext);
 
 function getDataFromContext(varArray, throwException) {
     if (throwException === undefined) throwException = true
@@ -71,22 +74,22 @@ function getDataFromContext(varArray, throwException) {
     if (throwException) throw new ElkError("Undefined variable '" + varArray.join(".") + "'")
     return undefined
 }
-common.exp(getDataFromContext)
+exp(getDataFromContext)
 
 function dataExistsInContext(varArray) {
     return getDataFromContext(varArray, false) !== undefined
 }
-common.exp(dataExistsInContext)
+exp(dataExistsInContext)
 
 function setDataInContext(name, value) {
     peekDataContext()[name] = value
 }
-common.exp(setDataInContext)
+exp(setDataInContext)
 
 function removeDataFromContext(name) {
     delete peekDataContext()[name]
 }
-common.exp(removeDataFromContext)
+exp(removeDataFromContext)
 
 function getTemplateDataRoot() {
     return templateDataStack[0]

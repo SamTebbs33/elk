@@ -15,8 +15,8 @@ var escapes = {
 };
 
 function exp(val, name) {
-  if(!name) name = val.name
-  module.exports[name] = val
+    if (!name) name = val.name;
+    module.exports[name] = val
 }
 
 function interpretEscapes(str) {
