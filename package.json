@@ -2,7 +2,7 @@
   "name": "elk",
   "version": "1.0.0",
   "description": "Concise markup that compiles to HTML",
-  "main": "src2/elk.js",
+  "main": "src/elk.js",
   "bin": "src2/run.js",
   "scripts": {
     "test": "mocha"

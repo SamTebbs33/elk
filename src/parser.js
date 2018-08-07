@@ -65,8 +65,11 @@ const keywordCase = strToken("case");
 const keywordDefault = strToken("default");
 const keywordTemplate = strToken("template");
 
-const string = regexToken(/"((?:\\.|.|\n)*?)"/).map(s => new nodes.StringNode(interpretEscapes(s.substr(1, s.length - 2))));
+const double_string = regexToken(/"((?:\\.|.|\n)*?)"/);
+const single_string = regexToken(/'((?:\\.|.|\n)*?)'/);
+const string = P.alt(double_string, single_string).map(s => new nodes.StringNode(interpretEscapes(s.substr(1, s.length - 2))));
 const integer = regexToken(/[1-9]+[0-9]*/).map(s => new nodes.IntegerNode(parseInt(s)));
+const boolean = P.alt(strToken("true"), strToken("false")).map(str => new nodes.BooleanNode(str === "true"));
 
 /*
  Non-terminals
@@ -77,10 +80,10 @@ const tagClass = dot.then(tagIdentifier);
 const tagRef = at.then(string);
 
 const expression = P.lazy(function () {
-    return P.alt(string, functionCall, integer, variable);
+    return P.alt(boolean, string, functionCall, integer, variable);
 });
 const statement = P.lazy(function () {
-    return P.alt(expression, tag, dataAssignment, control);
+    return P.alt(control, dataAssignment, expression, tag);
 });
 const statements = statement.atLeast(0);
 exp(statements, "statements");
@@ -95,13 +98,13 @@ const attribute = P.seqMap(tagIdentifier, optional(equals.then(expression)), fun
     return new nodes.AttributeNode(id, expr);
 });
 const attributes = surround(leftBracket, P.sepBy1(attribute, comma), rightBracket);
-const metadata = P.seqMap(optional(tagID), optional(tagClass), optional(tagRef), optional(attributes), function (id, cls, ref, attr) {
+const metadata = P.seqMap(optional(tagID), tagClass.atLeast(0), optional(tagRef), optional(attributes), function (id, cls, ref, attr) {
     return new nodes.MetadataNode(id, cls, ref, attr);
 });
 const tag = P.seqMap(tagIdentifier, optional(metadata), optional(statementBody), function (id, m, body) {
     return new nodes.TagNode(id, m, body);
 });
-const dataAssignment = P.seqMap(variable, equals, expression, function (v, eq, expr) {
+const dataAssignment = P.seqMap(tagIdentifier, equals, expression, function (v, eq, expr) {
     return new nodes.DataAssignmentNode(v, expr);
 });
 const elseStmt = keywordElse.then(statementBody).map(function (body) {
@@ -110,9 +113,11 @@ const elseStmt = keywordElse.then(statementBody).map(function (body) {
 const ifStmtTail = P.lazy(function () {
     return P.alt(keywordElse.then(ifStmt), elseStmt);
 });
-const ifStmt = keywordIf.then(P.seqMap(expression, statementBody, optional(ifStmtTail), function (expr, body, tail) {
-    return new nodes.IfStatementNode(expr, body, tail);
-}));
+const ifStmt = P.lazy(function() {
+    return keywordIf.then(P.seqMap(expression, statementBody, optional(ifStmtTail), function (expr, body, tail) {
+        return new nodes.IfStatementNode(expr, body, tail);
+    }));
+});
 const forLoop = keywordFor.then(P.seqMap(tagIdentifier, keywordIn, expression, statementBody, function (id, i, expr, body) {
     return new nodes.ForLoopNode(id, expr, body);
 }));

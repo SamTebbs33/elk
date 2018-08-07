@@ -1,3 +1,5 @@
+const elk = require("./elk.js");
+
 function exp(val, name) {
     if (!name) name = val.name;
     module.exports[name] = val;
@@ -62,7 +64,10 @@ function getDataFromContext(varArray, throwException) {
         obj = dataStack[i];
         for (let i2 in varArray) {
             const varName = varArray[i2];
-            if (obj.hasOwnProperty(varName)) obj = obj[varName];
+            if (obj.hasOwnProperty(varName)) {
+                obj = obj[varName];
+                found = true;
+            }
             else {
                 found = false;
                 break
@@ -71,7 +76,7 @@ function getDataFromContext(varArray, throwException) {
         if (found) break;
     }
     if (found) return obj;
-    if (throwException) throw new ElkError("Undefined variable '" + varArray.join(".") + "'")
+    if (throwException) throw new elk.ElkError("Undefined variable '" + varArray.join(".") + "'")
     return undefined
 }
 exp(getDataFromContext)
