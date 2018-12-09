@@ -35,3 +35,5 @@ tmp
 
 # Build
 build
+
+package-lock\.json
