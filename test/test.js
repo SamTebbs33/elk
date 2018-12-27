@@ -83,6 +83,35 @@ describe('HTML generation', function() {
             testParser("while $x { $x }", "", {"x": false});
         })
     })
+    describe("Match statement", function () {
+        it("should parse", function () {
+            testParser("match 123 {}", "")
+            testParser(`match 123 {
+                case 123: ""
+                case 321: ""
+            }`, "")
+        })
+        it("should match correctly", function () {
+            testParser(`
+                toMatch = 123
+                match $toMatch {
+                    case 456: "doesn't work"
+                }
+                `, "")
+            testParser(`
+                toMatch = 123
+                match $toMatch {
+                }
+                `, "")
+            testParser(`
+                toMatch = 123
+                match $toMatch {
+                    case 321: "doesn't work"
+                    case 123: "works"
+                }
+                `, "works")
+        })
+    })
 });
 
 function testParserFailure(elkCode, errMsg, data = {}) {
