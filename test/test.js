@@ -112,6 +112,12 @@ describe('HTML generation', function() {
                 `, "works")
         })
     })
+    describe("Template", function () {
+        it("should not allow function re-definition", function () {
+            testParserFailure(`template test123(a, b, c) {}
+                template test123(d, e, f) {}`, "Function 'test123' already exists");
+        })
+    })
 });
 
 function testParserFailure(elkCode, errMsg, data = {}) {
