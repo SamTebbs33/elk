@@ -8,6 +8,10 @@ class ElkValue {
         this._value = val;
     }
 
+    equals(otherValue) {
+        return this.value == otherValue.value;
+    }
+
     get value() {
         return this._value;
     }
