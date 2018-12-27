@@ -295,9 +295,13 @@ class MatchCaseNode extends Node {
         return this._body;
     }
 
+	testMatch(toMatch) {
+		const exprVal = this.expression.evaluate();
+		return exprVal.equals(toMatch);
+	}
+
     gen(indent) {
-        // TODO
-        return "";
+		return genBody(this.body, indent);
     }
 }
 exp(MatchCaseNode);
@@ -318,7 +322,12 @@ class MatchNode extends Node {
     }
 
     gen(indent) {
-        // TODO
+		const exprVal = this.expression.evaluate();
+		for (i in this.body) {
+			const matchCase = this.body[i];
+			if (matchCase.testMatch(exprVal))
+				return matchCase.gen(indent)
+		}
         return "";
     }
 }
