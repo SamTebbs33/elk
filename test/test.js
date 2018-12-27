@@ -118,6 +118,14 @@ describe('HTML generation', function() {
                 template test123(d, e, f) {}`, "Function 'test123' already exists");
         })
     })
+    describe("Function call", function () {
+        it("should evaluate properly", function () {
+                testParser("template test123b (a) { $a } test123b(\"abc123\")", "abc123");
+        })
+        it("should evaluate multiple arguments properly", function () {
+                testParser("template test123c (a, b) { $a $b } test123c(123, \"abc\")", "123\nabc")
+        })
+    })
 });
 
 function testParserFailure(elkCode, errMsg, data = {}) {
