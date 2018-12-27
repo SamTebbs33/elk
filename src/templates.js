@@ -9,8 +9,8 @@ const templateFunctions = {};
 const templates = {};
 const templateDataStack = [];
 
-function addTemplateFunction(name, func) {
-    templateFunctions[name] = func;
+function addTemplateFunction(name, args, func) {
+    templateFunctions[name] = {"func": func, "params": args};
 }
 exp(addTemplateFunction);
 
