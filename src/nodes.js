@@ -1,460 +1,473 @@
-/**
- * Created by samtebbs on 28/09/2016.
- */
-
-var elk = require("./elk.js")
-
-var hrefTags = ["a", "link"]
-var voidTags = ["area", "base", "br", "col", "embed", "hr", "img", "input",
-  "link", "meta", "param", "source", "track", "wbr"]
+const values = require("./values.js");
+const elk = require("./elk.js");
+const templates = require("./templates.js")
+var sprintf = require('sprintf-js').sprintf;
 
 function exp(val, name) {
-  if(!name) name = val.name
-  module.exports[name] = val
+    if (!name) name = val.name;
+    module.exports[name] = val
+}
+
+const hrefTags = ["a", "link"];
+const voidTags = ["area", "base", "br", "col", "embed", "hr", "img", "input",
+    "link", "meta", "param", "source", "track", "wbr"];
+module.exports.voidTags = voidTags;
+
+function genBody(body, indent) {
+    const empty = !body || body.length === 0;
+    const simpleBody = !empty && body.length === 0 && body[0].isSimple();
+    if(empty) return "";
+    else if(simpleBody) {
+        return body[0].gen(0);
+    } else {
+        const genResult = body.map(stmt => stmt.gen(indent)).filter(str => str != "").join("\n");
+        return genResult;
+    }
+}
+exp(genBody);
+
+function repeat(str, times) {
+    var s = "";
+    for (let i = 0; i < times; i++) {
+        s += str;
+    }
+    return s;
+}
+
+function makeIndentation(indent) {
+    return repeat("\t", indent)
 }
 
 class Node {
-  isSimple() {
-    return this instanceof StringNode || this instanceof TemplateVar
-  }
-  gen(indent){ return "" }
-}
-exp(Node)
-
-class Statement extends Node {
-  constructor() {
-    super()
-    this.metadata = null
-  }
-
-  wrapMetadata(indent, genStr) {
-    if(this.metadata !== null) {
-      var metaStr = this.metadata.gen(0)
-      if(metaStr !== "") return "<span" + metaStr + ">" + genStr + "</span>"
+    gen(indent) {
+        throw "Unimplemented gen()";
     }
-    return genStr
-  }
 
-}
-exp(Statement)
-
-class TemplateExpr extends Statement {
-
-  gen(indent) {
-    var evalResult = this.eval(indent)
-    if(evalResult instanceof Statements) return evalResult.gen(indent)
-    else if(elk.isString(evalResult)) return evalResult
-    if(evalResult instanceof Statement) {
-      if(!evalResult.metadata) evalResult.metadata = this.metadata
-      else evalResult.metadata.merge(this.metadata)
-      if(evalResult instanceof Tag && evalResult.metadata) evalResult.metadata.onTag(evalResult)
+    isSimple() {
+        return false;
     }
-    if(evalResult instanceof Node) return evalResult.gen(indent)
-    else return this.wrapMetadata(indent, evalResult)
-  }
-
-  eval(indent) {
-    throw "Unimplemented"
-  }
-
 }
-exp(TemplateExpr)
 
-class StringNode extends TemplateExpr {
-  constructor(str) {
-    super()
-    this.str = str
-  }
-
-  eval(indent) {
-    var s = this.str.replace(/[$][(]([a-z_](?:\.|[a-z_]|[0-9])*)[)]/g, function(fullMatch, match1) {
-      var varArray = match1.split(".")
-      var val = elk.getDataFromContext(varArray)
-      if(val instanceof TemplateExpr) val = val.eval(0)
-      else if(val instanceof Node) val = val.gen(0)
-      return val
-    })
-    s = s.replace(/[$][{]([^{}]+)[}]/g, function (fullMatch, match1) {
-      var result = elk.compile(match1)
-      if(!result.errored) return result.data
-      else throw new elk.ElkError(result.errData)
-    })
-    if(s.endsWith(" ")) s = s.substring(0, s.length - 1) + "&nbsp;"
-    if(s.startsWith(" ")) s = "&nbsp;" + s.substring(1, s.length)
-    return elk.makeStr(s, indent)
-  }
-
-}
-exp(StringNode)
-
-class IntegerNode extends TemplateExpr {
-  constructor(i) {
-    super()
-    this.value = i
-  }
-
-  eval(indent) {
-    return this.value
-  }
-
-}
-exp(IntegerNode)
-
-class FloatNode extends TemplateExpr {
-  constructor(f) {
-    super()
-    this.value = f
-  }
-
-  eval(indent) {
-    return this.value
-  }
-
-}
-exp(FloatNode)
-
-class Attribute extends Node {
-
-  constructor(attrName, val) {
-    super()
-    this.attrName = attrName
-    this.val = val
-  }
-
-  gen(indent) {
-    return this.attrName + (this.val ? "=\"" + this.val.gen(0) + "\"" : "")
-  }
-
-}
-exp(Attribute)
-
-class Attributes extends Node {
-
-  constructor(attrArray) {
-    super()
-    this.attrs = attrArray
-  }
-
-  add(name, val) {
-    this.attrs.push(new Attribute(name, val))
-  }
-
-  gen(indent) {
-    var attrsStr = ""
-    for(var i in this.attrs) {
-      var attr = this.attrs[i]
-      attrsStr += " " + attr.gen(indent)
+class Expression extends Node {
+    constructor() {
+        super();
     }
-    return attrsStr
-  }
 
-}
-exp(Attributes)
-
-class TemplateMatchCase {
-  constructor(e, b) {
-    this.expr = e
-    this.block = b
-  }
-}
-exp(TemplateMatchCase)
-
-class MatchBlock {
-  constructor(c, d) {
-    this.cases = c
-    this.default = d
-  }
-
-  gen(indent, exprResult) {
-    for (var i in this.cases) {
-      var c = this.cases[i]
-      var caseResult = c.expr.eval(0)
-      if(caseResult == exprResult) return c.block.gen(indent)
+    gen(indent) {
+        return makeIndentation(indent) + this.evaluate().toString();
     }
-    return this.default ? this.default.gen(indent) : " "
-  }
 
-}
-exp(MatchBlock)
+    evaluate() {
 
-class TemplateMatch extends TemplateExpr {
-  constructor(e, b) {
-    super()
-    this.expr = e
-    this.block = b
-  }
-
-  eval(indent) {
-    var exprResult = this.expr.eval(0)
-    return this.block.gen(indent, exprResult)
-  }
-
-}
-exp(TemplateMatch)
-
-class TemplateVar extends TemplateExpr {
-
-  constructor(varArray) {
-    super()
-    this.varArray = varArray
-  }
-
-  exists() {
-    return elk.dataExistsInContext(this.varArray)
-  }
-
-  eval(indent) {
-    return elk.getDataFromContext(this.varArray)
-  }
-}
-exp(TemplateVar)
-
-class TemplateFuncCall extends TemplateExpr {
-
-  constructor(funcName, args) {
-    super()
-    this.funcName = funcName
-    this.args = args
-  }
-
-  eval(indent) {
-    var func = elk.getTemplateFunction(this.funcName)
-    var template = elk.getTemplate(this.funcName, this.args.length)
-    if(!func && !template) throw new elk.ElkError("Undefined function or matching template '" + this.funcName + "'")
-    if(func) return func(indent, this.args)
-    else {
-      var dataObj = {}
-      for(var i in template.params) dataObj[template.params[i]] = this.args[i]
-      elk.pushDataContext(dataObj)
-      var str = template.block.gen(indent)
-      elk.popDataContext()
-      return str
     }
-    return " "
-  }
-
 }
-exp(TemplateFuncCall)
 
-class TemplateLoop extends TemplateExpr {
+class TagNode extends Node {
+    constructor(t, m, b) {
+        super();
+        this._metadata = m;
+        this._tag = t;
+        this._body = b ? b : [];
+        this.metadata.tag = this.tag;
+    }
 
-  constructor(varName, expr, block) {
-    super()
-    this.varName = varName
-    this.expr = expr
-    this.block = block
-  }
+    get metadata() {
+        return this._metadata;
+    }
 
-  gen(indent) {
-    var array = this.expr.eval(indent)
-    if(elk.dataExistsInContext(this.varName)) throw new elk.ElkError("Variable '" + this.varName + "' is already defined")
-    else {
-      var resultArray = []
-      for(var i in array) {
-        var elem = array[i]
-        var obj = {}
-        obj[this.varName] = elem
-        elk.pushDataContext(obj)
-        resultArray.push(this.block.gen(indent))
-        elk.popDataContext()
+    get tag() {
+        return this._tag;
+    }
+
+    get body() {
+        return this._body;
+    }
+
+    gen(indent) {
+        const indentation = makeIndentation(indent);
+        const metadataGen = this.metadata.gen(0);
+        if(voidTags.includes(this.tag)) {
+            if(this.body.length > 0) throw new elk.ElkError("Void tags cannot have a body: '" + this.tag + "'")
+            return sprintf("%s<%s%s/>", indentation, this.tag, metadataGen === "" ? "" : " " + metadataGen)
+        }
+        return sprintf("%s<%s%s>%s</%s>", indentation, this.tag, metadataGen === "" ? "" : " " + metadataGen, genBody(this.body, indent), this.tag);
+    }
+}
+exp(TagNode);
+
+class DataAssignmentNode extends Node {
+    constructor(variable, expr) {
+        super();
+        this._var = variable;
+        this._expr = expr;
+    }
+
+    get variable() {
+        return this._var;
+    }
+
+    get expression() {
+        return this._expr;
+    }
+
+    gen(indent) {
+        templates.setDataInContext(this.variable, this.expression.evaluate());
+        return "";
+    }
+}
+exp(DataAssignmentNode);
+
+class AttributeNode extends Node {
+    constructor(name, expr) {
+        super();
+        this._name = name;
+        this._expr = expr;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get expression() {
+        return this._expr;
+    }
+
+    gen(indent) {
+        return sprintf("%s%s", this.name, this.expression ? "=\"" + this.expression.evaluate().toString() + "\"" : "");
+    }
+}
+exp(AttributeNode);
+
+class MetadataNode extends Node {
+    constructor(id, cls, ref, attrs) {
+        super();
+        this._id = id;
+        this._cls = cls;
+        this._ref = ref;
+        this._attrs = attrs;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get cls() {
+        return this._cls;
+    }
+
+    get ref() {
+        return this._ref;
+    }
+
+    get attributes() {
+        return this._attrs;
+    }
+
+    set tag(t) {
+        this._tag = t;
+    }
+
+    get tag() {
+        return this._tag;
+    }
+
+    gen(indent) {
+        let result = [];
+        if(this.id) result.push("id=\"" + this.id + "\"");
+        if(this.cls.length > 0) result.push("class=\"" + this.cls.join(" ") + "\"");
+        if(this.ref){
+            const refAttribute = hrefTags.includes(this.tag) ? "href" : "src";
+            result.push(refAttribute + "=\"" + this.ref.gen(0) + "\"");
+        }
+        for (let i in this.attributes) {
+            let attr = this.attributes[i];
+            result.push(attr.gen(0));
+        }
+        return result.join(" ");
+    }
+}
+exp(MetadataNode);
+
+class IfStatementNode extends Node {
+    constructor(expr, body, tail) {
+        super();
+        this._expr = expr;
+        this._body = body;
+        this._tail = tail;
+    }
+
+    get expression() {
+        return this._expr;
+    }
+
+    get body() {
+        return this._body;
+    }
+
+    get tail() {
+        return this._tail;
+    }
+
+    gen(indent) {
+        if(this.expression && this.expression.evaluate().value || !this.expression && !this.tail) return genBody(this.body, indent);
+        else if(this.tail) return this.tail.gen(indent);
+    }
+}
+exp(IfStatementNode);
+
+class ForLoopNode extends Node {
+    constructor(id, expr, body) {
+        super()
+        this._id =  id;
+        this._expr = expr;
+        this._body = body;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get expression() {
+        return this._expr;
+    }
+
+    get body() {
+        return this._body;
+    }
+
+    gen(indent) {
+        var str = "";
+        const varArray = [this.id];
+        if(templates.dataExistsInContext(varArray)) throw new elk.ElkError("Variable '" + this.id + "' already exists");
+        const exprVal = this.expression.evaluate();
+        templates.pushDataContext({});
+        for(var i in exprVal) {
+            templates.setDataInContext(this.id, exprVal[i]);
+            str += genBody(this.body);
+        }
+        templates.popDataContext();
+        return str;
+    }
+}
+exp(ForLoopNode);
+
+class WhileLoopNode extends Node {
+    constructor(expr, body) {
+        super();
+        this._expr = expr;
+        this._body = body;
+    }
+
+    get expression() {
+        return this._expr;
+    }
+
+    get body() {
+        return this._body;
+    }
+
+    gen(indent) {
+        var str = "";
+        var exprVal = this.expression.evaluate();
+        while (exprVal) {
+            templates.pushDataContext({});
+            str += genBody(this.body);
+            templates.popDataContext();
+            exprVal = this.expression.evaluate().value;
+        }
+        return str;
+    }
+}
+exp(WhileLoopNode);
+
+class MatchCaseNode extends Node {
+    constructor(expr, body) {
+        super();
+        this._expr = expr;
+        this._body = body;
+    }
+
+    get expression() {
+        return this._expr;
+    }
+
+    get body() {
+        return this._body;
+    }
+
+	testMatch(toMatch) {
+		const exprVal = this.expression.evaluate();
+		return exprVal.equals(toMatch);
+	}
+
+    gen(indent) {
+		return genBody(this.body, indent);
+    }
+}
+exp(MatchCaseNode);
+
+class MatchNode extends Node {
+    constructor(expr, body) {
+        super();
+        this._expr = expr;
+        this._body = body;
+    }
+
+    get expression() {
+        return this._expr;
+    }
+
+    get body() {
+        return this._body;
+    }
+
+    gen(indent) {
+		const exprVal = this.expression.evaluate();
+		for (i in this.body) {
+			const matchCase = this.body[i];
+			if (matchCase.testMatch(exprVal))
+				return matchCase.gen(indent)
+		}
+        return "";
+    }
+}
+exp(MatchNode);
+
+class TemplateNode extends Node {
+    constructor(name, params, body) {
+        super();
+        this._name = name;
+        this._params = params;
+        this._body = body;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get params() {
+        return this._params;
+    }
+
+    get body() {
+        return this._body;
+    }
+
+    gen(indent) {
+		if (templates.templateFunctionExists(this.name)) throw new elk.ElkError("Function '" + this.name + "' already exists");
+		const funcBody = this.body;
+		templates.addTemplateFunction(this.name, this.params, () => {
+			const result = genBody(funcBody, indent);
+			return new values.ElkString(result);
+		})
+        return "";
+    }
+}
+exp(TemplateNode);
+
+class FunctionCallNode extends Expression {
+    constructor(name, args) {
+        super();
+        this._name = name;
+        this._args = args;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get args() {
+        return this._args;
+    }
+
+    evaluate() {
+      if (!templates.templateFunctionExists(this.name, this.args.length)) throw new elk.ElkError("Function '" + this.name + "' doesn't exist");
+      const funcDef = templates.getTemplateFunction(this.name, this.args.length);
+      const context = {};
+      for (var x in funcDef.params) {
+	      const param = funcDef.params[x];
+	      context[param] = this.args[x].evaluate();
       }
-      return resultArray.join("\n")
+      templates.pushDataContext(context);
+      const val = funcDef.func();
+      templates.popDataContext();
+      return val;
     }
-  }
-
 }
-exp(TemplateLoop)
+exp(FunctionCallNode);
 
-class TemplateIf extends TemplateExpr {
-
-  constructor(expr, block, else_stmt) {
-    super()
-    this.expr = expr
-    this.block = block
-    this.else_stmt = else_stmt
-  }
-
-  eval(indent) {
-    if(!this.expr) return this.block.gen(indent)
-    else {
-      var val = this.expr.eval(indent)
-      if(val === true) return this.block.gen(indent)
-      else if(this.else_stmt) return this.else_stmt.eval(indent)
-      else return ""
+class StringNode extends Expression {
+    constructor(str) {
+        super();
+        this._str = str;
     }
-  }
 
-}
-exp(TemplateIf)
-
-class JsonArray extends TemplateExpr {
-  constructor(a) {
-    super()
-    this.array = a
-  }
-
-  eval(indent) {
-    return this.array.map(v => v.eval(0))
-  }
-
-}
-exp(JsonArray)
-
-class JsonObject extends TemplateExpr {
-  constructor(defs) {
-    super()
-    this.fields = defs
-  }
-
-  eval(indent) {
-    var obj = {}
-    for(var i in this.fields) {
-      var field = this.fields[i]
-      obj[field.id] = field.expr.eval(0)
+    get string() {
+        return this._str;
     }
-    return obj
-  }
 
-}
-exp(JsonObject)
-
-class JsonField {
-  constructor(id, expr) {
-    this.id = id
-    this.expr = expr
-  }
-}
-exp(JsonField)
-
-class Metadata extends Node {
-
-  constructor(c, i, h, a) {
-    super()
-    this.classes = c
-    this.id = i
-    this.attrs = a
-    this.href = h
-  }
-
-  onTag(tag) {
-    if(this.href) {
-      var hrefAttribute = "src"
-      if(hrefTags.includes(tag.tag)) hrefAttribute = "href"
-      if (this.attrs) this.attrs.add(hrefAttribute, this.href)
-      else this.attrs = new Attributes([new Attribute(hrefAttribute, this.href)])
+    evaluate() {
+        return new values.ElkString(this.string);
     }
-  }
 
-  merge(m) {
-    if (!m) return
-    if(this.attrs) this.attrs.merge(m.attrs)
-    for(var i in m.classes) {
-      var cls = m.classes[i]
-      this.classes.push(cls)
+    isSimple() {
+        return true;
     }
-    if(m.href) this.href = m.href
-    if(m.id) this.id = m.id
-  }
-
-  gen(indent) {
-    var classStr = this.classes.length > 0 ? " class='" + this.classes.join(" ") + "'" : ""
-    var idStr = this.id ? " id='" + this.id + "'" : ""
-    var attrsStr = this.attrs ? this.attrs.gen(0) : ""
-    return classStr + idStr + attrsStr
-  }
-
 }
-exp(Metadata)
+exp(StringNode);
 
-class Tag extends Statement {
-
-  constructor(tag, m, block, generatedBlock) {
-    super()
-    this.tag = tag
-    this.metadata = m
-    this.block = block
-    this.generatedBlock = generatedBlock
-    if(this.metadata) this.metadata.onTag(this)
-  }
-
-  gen(indent) {
-    var hasBlock = this.block !== null
-    var isVoidTag = voidTags.includes(this.tag)
-    var headerStr = "<" + this.tag + (this.metadata ? this.metadata.gen(0) : "") + ">"
-    var blockIsSingle = this.generatedBlock || (hasBlock && (this.block instanceof StringNode || this.block instanceof TemplateVar))
-    var bodyStr = this.generatedBlock ? this.generatedBlock : (hasBlock ? this.block.gen(blockIsSingle ? 0 : indent + 1) : "")
-    var hasBody = bodyStr !== ""
-    var needsClosingTag = hasBody || !isVoidTag
-    var footerStr = needsClosingTag ? elk.makeStr("</" + this.tag + ">", blockIsSingle || !hasBlock ? 0 : indent) : ""
-    var bodySeparator = blockIsSingle ? "" : "\n"
-    var str = elk.makeStr(headerStr , indent)
-    if(hasBody) str += bodySeparator + bodyStr + bodySeparator
-    str += footerStr
-    return str
-  }
-
-}
-exp(Tag)
-
-class Statements extends Node {
-
-  constructor(stmtArr) {
-    super()
-    this.stmtArr = stmtArr
-  }
-
-  add(stmt) {
-    this.stmtArr.push(stmt)
-  }
-
-  gen(indent) {
-    var stmtsStr = ""
-    for(var i in this.stmtArr) stmtsStr += (i > 0 ? "\n" : "") + this.stmtArr[i].gen(indent)
-    return stmtsStr
-  }
-
-}
-exp(Statements)
-
-class Template extends Node {
-  constructor(i, p, b) {
-    super()
-    this.name = i
-    this.params = p ? p : []
-    this.block = b
-  }
-
-  gen(indent) {
-    if(elk.templateExists(this.name, this.params.length) || elk.templateFunctionExists(this.name)) throw new elk.ElkError("Template or function with the name \'" + this.name + "\' already exists")
-    else elk.addTemplate(this.name, this.params, this.block)
-    return " "
-  }
-
-}
-exp(Template)
-
-class DataAssignment {
-  constructor(id, e) {
-    this.id = id
-    this.expr = e
-  }
-}
-exp(DataAssignment)
-
-class DataDefinition extends Node {
-  constructor(assignments) {
-    super()
-    this.assignments = assignments
-  }
-
-  gen(indent) {
-    var obj = {}
-    for(var i in this.assignments) {
-      var assignment = this.assignments[i]
-      obj[assignment.id] = assignment.expr.eval(0)
+class IntegerNode extends Expression {
+    constructor(i) {
+        super();
+        this._i = i;
     }
-    elk.pushDataContext(obj)
-    return " "
-  }
+
+    get integer() {
+        return this._i;
+    }
+
+    evaluate() {
+        return new values.ElkInteger(this.integer);
+    }
+
+    isSimple() {
+        return true;
+    }
 }
-exp(DataDefinition)
+exp(IntegerNode);
+
+class VariableNode extends Expression {
+    constructor(parts) {
+        super();
+        this._parts = parts;
+    }
+
+    get parts() {
+        return this._parts;
+    }
+
+    evaluate() {
+        return templates.getDataFromContext(this.parts, true);
+    }
+
+    isSimple() {
+        return true;
+    }
+}
+exp(VariableNode);
+
+class BooleanNode extends Expression {
+    constructor(val) {
+        super();
+        this._val = val;
+    }
+
+    get val() {
+        return this._val;
+    }
+
+    evaluate() {
+        return new values.ElkBoolean(this.val);
+    }
+}
+exp(BooleanNode)
