@@ -354,7 +354,12 @@ class TemplateNode extends Node {
     }
 
     gen(indent) {
-        // TODO
+		if (templates.templateFunctionExists(this.name)) throw new elk.ElkError("Function '" + this.name + "' already exists");
+		const funcBody = this.body;
+		templates.addTemplateFunction(this.name, this.params, () => {
+			const result = genBody(funcBody, indent);
+			return new values.ElkString(result);
+		})
         return "";
     }
 }
@@ -376,8 +381,17 @@ class FunctionCallNode extends Expression {
     }
 
     evaluate() {
-        // TODO
-        return new values.ElkString("");
+      if (!templates.templateFunctionExists(this.name, this.args.length)) throw new elk.ElkError("Function '" + this.name + "' doesn't exist");
+      const funcDef = templates.getTemplateFunction(this.name, this.args.length);
+      const context = {};
+      for (var x in funcDef.params) {
+	      const param = funcDef.params[x];
+	      context[param] = this.args[x].evaluate();
+      }
+      templates.pushDataContext(context);
+      const val = funcDef.func();
+      templates.popDataContext();
+      return val;
     }
 }
 exp(FunctionCallNode);
