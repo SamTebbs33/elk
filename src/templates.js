@@ -10,35 +10,21 @@ const templates = {};
 const templateDataStack = [];
 
 function addTemplateFunction(name, args, func) {
-    templateFunctions[name] = {"func": func, "params": args};
+    if (!templateFunctions[name]) templateFunctions[name] = {};
+    templateFunctions[name][args.length] = {"func": func, "params": args};
 }
 exp(addTemplateFunction);
 
-function getTemplateFunction(name) {
-    return templateFunctions[name]
+function getTemplateFunction(name, args) {
+    if (!templateFunctions[name]) return null;
+    return templateFunctions[name][args.length]
 }
 exp(getTemplateFunction);
 
-function templateFunctionExists(name) {
-    return !!getTemplateFunction(name);
+function templateFunctionExists(name, args) {
+    return !!getTemplateFunction(name, args);
 }
 exp(templateFunctionExists);
-
-function addTemplate(name, params, block) {
-    if (!templates[name]) templates[name] = {};
-    templates[name][params.length] = {params: params, block: block}
-}
-exp(addTemplate);
-
-function getTemplate(name, numParams) {
-    return templates[name] ? templates[name][numParams] : null
-}
-exp(getTemplate);
-
-function templateExists(name, numParams) {
-    return !!getTemplate(name, numParams);
-}
-exp(templateExists);
 
 function pushDataContext(context) {
     templateDataStack.unshift(context)

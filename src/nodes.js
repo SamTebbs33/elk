@@ -354,7 +354,7 @@ class TemplateNode extends Node {
     }
 
     gen(indent) {
-		if (templates.templateFunctionExists(this.name)) throw new elk.ElkError("Function '" + this.name + "' already exists");
+		if (templates.templateFunctionExists(this.name, this.params)) throw new elk.ElkError("Function '" + this.name + "' already exists");
 		const funcBody = this.body;
 		templates.addTemplateFunction(this.name, this.params, () => {
 			const result = genBody(funcBody, indent);
@@ -381,8 +381,8 @@ class FunctionCallNode extends Expression {
     }
 
     evaluate() {
-      if (!templates.templateFunctionExists(this.name, this.args.length)) throw new elk.ElkError("Function '" + this.name + "' doesn't exist");
-      const funcDef = templates.getTemplateFunction(this.name, this.args.length);
+      if (!templates.templateFunctionExists(this.name, this.args)) throw new elk.ElkError("Function '" + this.name + "' doesn't exist");
+      const funcDef = templates.getTemplateFunction(this.name, this.args);
       const context = {};
       for (var x in funcDef.params) {
 	      const param = funcDef.params[x];

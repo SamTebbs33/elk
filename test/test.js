@@ -1,6 +1,58 @@
 var assert = require('assert');
 var elk = require("../src/elk.js");
 var nodes = require("../src/nodes.js");
+var templates = require("../src/templates.js");
+
+describe("Template system", function () {
+    describe("Template functions", function () {
+    	it("should not exist without being added", function () {
+		assert.equal(templates.templateFunctionExists("testFunc", [null]), false);
+	});
+    	it("should be added properly", function () {
+		assert.equal(templates.templateFunctionExists("testFunc", [null]), false);
+		templates.addTemplateFunction("testFunc", [null], function () { return "a"; });
+		assert.ok(templates.templateFunctionExists("testFunc", [null]));
+	});
+	it("should be runnable", function () {
+		assert.equal(templates.getTemplateFunction("testFunc", [null]).func(), "a");
+	});
+    });
+    describe("Variables", function () {
+    	it("should not exist without being added", function () {
+		assert.equal(templates.dataExistsInContext(["testVar"]), false);
+	});
+    	it("should be set properly", function () {
+		assert.equal(templates.dataExistsInContext(["testVar"]), false);
+		templates.pushDataContext({});
+		templates.setDataInContext("testVar", "testVal");
+		assert.ok(templates.dataExistsInContext(["testVar"]));
+		assert.equal(templates.getDataFromContext(["testVar"], false), "testVal");
+		templates.popDataContext();
+	});
+    	it("should allow pushing context", function () {
+		assert.equal(templates.dataExistsInContext(["testVar2"]), false);
+		templates.pushDataContext({"testVar2": "testVal2"});
+		assert.ok(templates.dataExistsInContext(["testVar2"]));
+		assert.equal(templates.getDataFromContext(["testVar2"], false), "testVal2");
+		templates.popDataContext();
+	});
+	it("should resolve nested variables", function () {
+		templates.pushDataContext({"a": { "b": { "c": "test" } } });
+		assert.ok(templates.dataExistsInContext(["a", "b", "c"]));
+		assert.equal(templates.getDataFromContext(["a", "b", "c"]), "test");
+		templates.popDataContext();
+		assert.equal(templates.dataExistsInContext(["a", "b", "b"]), false);
+	});
+    	it("should pop correctly", function () {
+		templates.pushDataContext({"testVar2": "testVal2"});
+		assert.ok(templates.dataExistsInContext(["testVar2"]));
+		templates.popDataContext();
+		assert.equal(templates.dataExistsInContext(["testVar2"]), false);
+	});
+
+    });
+});
+
 describe('HTML generation', function() {
     describe('Tag', function() {
         it('should parse', function() {
