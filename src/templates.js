@@ -67,6 +67,10 @@ function getDataFromContext(varArray, throwException) {
 }
 exp(getDataFromContext)
 
+function gatherDataFromCOontext(vars) {
+    
+}
+
 function dataExistsInContext(varArray) {
     return getDataFromContext(varArray, false) !== undefined
 }

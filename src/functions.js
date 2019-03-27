@@ -3,6 +3,8 @@
  */
 var elk = require("./elk.js")
 var nodes = require("./nodes.js")
+var values = require("./values.js");
+var templates = require("./templates.js");
 var fs = require("fs")
 var moment = require("moment")
 var request = require("sync-request")
@@ -41,8 +43,9 @@ function camelise(s) {
     .replace(/[^A-Za-z\u00C0-\u00ff]/g,'')
 }
 
-elk.addTemplateFunction("camelise", function (indent, args) {
-  return args[0].eval(0).map(camelise)
+templates.addTemplateFunction("camelise", ["str"], function () {
+  var args = templates.gatherDataFromContext(["str"]);
+  return new values.ElkString(args["str"].value.map(camelise));
 })
 
 elk.addTemplateFunction("table", function (indent, args) {

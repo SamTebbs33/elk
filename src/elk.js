@@ -1,6 +1,7 @@
 var parser = require("./parser.js");
 var templates = require("./templates.js");
 var nodes = require("./nodes.js");
+var functions = require("./functions.js");
 
 function exp(val, name) {
     if (!name) name = val.name;
